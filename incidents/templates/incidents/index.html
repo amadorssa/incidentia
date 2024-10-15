@@ -1,0 +1,9 @@
+{% if latest_incident_list %}
+    <ul>
+    {% for incident in latest_incident_list %}
+        <li><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></li>        
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
