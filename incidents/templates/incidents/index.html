@@ -1,3 +1,4 @@
+<h1>Incident List</h1>
 {% if latest_incident_list %}
     <ul>
     {% for incident in latest_incident_list %}
@@ -7,3 +8,10 @@
 {% else %}
     <p>No polls are available.</p>
 {% endif %}
+
+<h2>Add a new Incident</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Muestra el formulario -->
+    <button type="submit">Add Incident</button>
+</form>

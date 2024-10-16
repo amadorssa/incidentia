@@ -5,7 +5,7 @@ from markdownx.models import MarkdownxField
 
 class Incident(models.Model):
     incident_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField("date published")
+    pub_date = models.DateTimeField('date published', auto_now_add=True)
     description = MarkdownxField(null=True, blank=True)  # Campo de descripción con soporte Markdown
     
     def __str__(self):
