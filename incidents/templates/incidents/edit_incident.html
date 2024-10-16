@@ -1,0 +1,9 @@
+<h1>Edit Incident</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Muestra los campos del formulario -->
+    <button type="submit">Save changes</button>
+</form>
+
+<!-- Enlace para volver a la vista de detalles del incidente -->
+<a href="{% url 'incidents:detail' incident.pk %}">Back to Incident Details</a>
