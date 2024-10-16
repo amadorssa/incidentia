@@ -1,12 +1,4 @@
-<form action="{% url 'incidents:vote' incident.id %}" method="post">
-    {% csrf_token %}
-    <fieldset>
-        <legend><h1>{{ incident.incident_text }}</h1></legend>
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-        {% for choice in incident.choice_set.all %}
-            <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-            <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
-        {% endfor %}
-    </fieldset>
-    <input type="submit" value="Vote">
-    </form>
+<!-- templates/incidents/detail.html -->
+<h1>{{ incident.incident_text }}</h1>
+<p><strong>Published on:</strong> {{ incident.pub_date }}</p>
+<p><strong>Description:</strong> {{ incident.description }}</p>
