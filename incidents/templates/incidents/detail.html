@@ -1,4 +1,14 @@
-<!-- templates/incidents/detail.html -->
 <h1>{{ incident.incident_text }}</h1>
-<p><strong>Published on:</strong> {{ incident.pub_date }}</p>
-<p><strong>Description:</strong> {{ incident.description }}</p>
+<p>{{ incident.description }}</p>
+<p>Published on: {{ incident.pub_date }}</p>
+
+<!-- Formulario para editar el incidente -->
+<h2>Edit Incident</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Muestra los campos del formulario -->
+    <button type="submit">Save changes</button>
+</form>
+
+<!-- Enlace para volver a la lista de incidentes -->
+<a href="{% url 'incidents:index' %}">Back to incidents</a>
