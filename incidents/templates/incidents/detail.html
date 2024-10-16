@@ -1,5 +1,5 @@
 <h1>{{ incident.incident_text }}</h1>
-<p>{{ incident.description }}</p>
+<p>{{ incident.description|safe }}</p>
 <p>Published on: {{ incident.pub_date }}</p>
 
 <!-- Enlace para editar el incidente -->
@@ -7,3 +7,4 @@
 
 <!-- Enlace para volver a la lista de incidentes -->
 <a href="{% url 'incidents:index' %}">Back to incidents</a>
+
