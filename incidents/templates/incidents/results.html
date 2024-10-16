@@ -1,9 +1,0 @@
-<h1>{{ incident.incident_text }}</h1>
-
-<ul>
-{% for choice in incident.choice_set.all %}
-    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
-{% endfor %}
-</ul>
-
-<a href="{% url 'incidents:detail' incident.id %}">Vote again?</a>
