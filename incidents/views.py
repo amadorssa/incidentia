@@ -8,16 +8,11 @@ from .models import Incident
 
 class IndexView(generic.ListView):
     template_name = "incidents/index.html"
-    context_object_name = "latest_incident_list"
 
-    def get_queryset(self):
-        """Return the last five published incidents."""
-        return Incident.objects.order_by("-pub_date")[:5]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = IncidentForm()  # Añadir el formulario al contexto
-        return context
+    def get(self, request, *args, **kwargs):
+        """Mostrar el formulario usando GET requests."""
+        form = IncidentForm()
+        return self.render_form(form)
 
     def post(self, request, *args, **kwargs):
         form = IncidentForm(request.POST)
@@ -25,6 +20,14 @@ class IndexView(generic.ListView):
             form.save()  # Guarda el nuevo incidente
             return redirect("incidents:index")  # Redirecciona al index
         return self.get(request, *args, **kwargs)  # Si no es válido, muestra el formulario
+
+    def render_form(self, form):
+        """Funcion para hacer render del formulario"""
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context={"form": form},
+        )
 
 class DetailView(generic.DetailView):
     model = Incident
@@ -44,3 +47,18 @@ class EditIncidentView(generic.UpdateView):
 
     def get_success_url(self):
         return reverse('incidents:detail', args=[self.object.pk])  # Redirecciona a la vista de detalle después de guardar
+    
+class IncidentTableView(generic.ListView):
+    model = Incident
+    template_name = "incidents/table.html"
+    context_object_name = "incidents"
+
+    def get_queryset(self):
+        """Regresar todos los incidentes por fecha mas reciente."""
+        incidents = Incident.objects.order_by("-pub_date")
+
+        # Convertir la descripcion a tipo Markdown para cada incidente
+        for incident in incidents:
+            incident.description = markdown.markdown(incident.description or '')
+
+        return incidents

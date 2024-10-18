@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablas de Incidentes</title>
+</head>
+<body>
+    <a href="{% url 'incidents:index' %}">Regreso a Formulario</a>
+    <h1>Tabla de Incidentes.</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Incidente</th>
+                <th>Usuario</th>
+                <th>Descripcion</th>
+                <th>Fecha Publicacion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for incident in incidents %}
+            <tr>
+                <td><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></td>
+                <td>{{ incident.user_creator|default:"Anónimo" }}</td>
+                <td>{{ incident.description|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
+                <td>{{ incident.pub_date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No se encontraron incidentes.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
