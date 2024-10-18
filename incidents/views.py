@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import generic
 from django.urls import reverse
+from django.db.models import Q
 import markdown
 
 from .forms import IncidentForm
@@ -55,10 +56,30 @@ class IncidentTableView(generic.ListView):
 
     def get_queryset(self):
         """Regresar todos los incidentes por fecha mas reciente."""
-        incidents = Incident.objects.order_by("-pub_date")
+        query = self.request.GET.get("q", "")
+        user_creator = self.request.GET.get("user_creator", "")
 
+        incidents = Incident.objects.filter(
+            Q(incident_text__icontains=query)
+        )
+
+        # Filtar por usuario seleccionado
+        if user_creator:
+            incidents = incidents.filter(user_creator=user_creator)
+
+        # Ordenar por fecha de publicacion mas reciente
+        incidents = incidents.order_by("-pub_date")
         # Convertir la descripcion a tipo Markdown para cada incidente
         for incident in incidents:
             incident.description = markdown.markdown(incident.description or '')
 
         return incidents
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_creators = ( Incident.objects.values_list('user_creator', flat=True)
+                        .distinct()
+                        .exclude(user_creator__isnull=True))
+
+        context['user_creators'] = user_creators
+        return context

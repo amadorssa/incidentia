@@ -8,6 +8,20 @@
 <body>
     <a href="{% url 'incidents:index' %}">Regreso a Formulario</a>
     <h1>Tabla de Incidentes.</h1>
+    <form action="{% url 'incidents:incident_table' %}" method="get">
+        <input name="q" type="text" placeholder="Buscar por titulo..."
+                value="{{ request.GET.q|default:'' }}">
+        <select name="user_creator">
+            <option value="">-- Filtrar por Usuario --</option>
+            {% for user in user_creators %}
+            <option value="{{ user }}"
+                    {% if request.GET.user_creator == user %}selected{% endif %}>
+                    {{ user|default:"Anónimo"}}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Buscar</button>
+    </form>
     <table border="1">
         <thead>
             <tr>
@@ -27,7 +41,13 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4">No se encontraron incidentes.</td>
+                <td colspan="4">
+                    {% if request.GET.q %}
+                        No se encontraron incidentes que coincidan con "{{ request.GET.q }}".
+                    {% else %}
+                        No se encontraron incidentes.
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
