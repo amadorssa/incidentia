@@ -1,7 +1,7 @@
 # Compiled files
 **/__pycache__/
 *.pyc
-incidents/__pycache__/
+/incidents/__pycache__/
 
 # Database files
 db.sqlite3
