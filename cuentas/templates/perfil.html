@@ -5,7 +5,7 @@
 
   <!-- Mostrar la imagen del perfil arriba -->
   {% if usuario.foto_perfil %}
-    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" style="max-width: 200px;">
+    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" style="max-width: 200px;"> <!-- href NOTA -->
   {% else %}
     <p>No tienes una foto de perfil.</p>
   {% endif %}
