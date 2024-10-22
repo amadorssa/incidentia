@@ -1,0 +1,17 @@
+<h1>{{ incident.incident_text }}</h1>
+<p>Published on: {{ incident.pub_date }}</p>
+
+<p>Prioridad: {{ incident.prioridad }}</p>
+<p>Categoría: {{ incident.category }}</p>
+<p>{{ incident.description|safe }}</p>
+
+{% if incident.attachment %}
+    <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
+{% endif %}
+
+<!-- Enlace para editar el incidente -->
+<a href="{% url 'incidents:edit' incident.id %}">Edit Incident</a>
+
+<!-- Enlace para volver a la lista de incidentes -->
+<a href="{% url 'incidents:index' %}">Back to incidents</a>
+

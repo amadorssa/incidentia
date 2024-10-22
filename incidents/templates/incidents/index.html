@@ -1,0 +1,17 @@
+<h1>Incident List</h1>
+{% if latest_incident_list %}
+    <ul>
+    {% for incident in latest_incident_list %}
+        <li><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></li>        
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+
+<h2>Add a new Incident</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Muestra el formulario -->
+    <button type="submit">Add Incident</button>
+</form>
