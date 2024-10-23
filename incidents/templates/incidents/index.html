@@ -1,7 +1,18 @@
 <a href="{% url 'incidents:incident_table' %}">Tablas</a>
 
+<h1>Incident List</h1>
+{% if latest_incident_list %}
+    <ul>
+    {% for incident in latest_incident_list %}
+        <li><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></li>        
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+
 <h1>Agregar incidente.</h1>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}  <!-- Muestra el formulario -->
     <button type="submit">Agregar</button>
