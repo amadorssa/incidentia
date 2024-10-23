@@ -5,9 +5,9 @@
 
   <!-- Mostrar la imagen del perfil arriba -->
   {% if usuario.foto_perfil %}
-    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" style="max-width: 200px;"> <!-- href NOTA -->
+  <img src="/cuentas{{ usuario.foto_perfil.url }}" target="_blank">
   {% else %}
-    <p>No tienes una foto de perfil.</p>
+  <img src="/cuentas/media/default_pfp.jpg" target="_blank">
   {% endif %}
 
   <!-- Mostrar errores del formulario si hay -->

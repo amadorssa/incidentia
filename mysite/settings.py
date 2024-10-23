@@ -37,14 +37,14 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "incidents.apps.IncidentsConfig",
-    'markdownx',
+    'cuentas.apps.CuentasConfig',
+    #'markdownx',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cuentas',
 ]
 
 AUTH_USER_MODEL = 'cuentas.Usuario'
@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'

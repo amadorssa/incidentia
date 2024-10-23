@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.views import generic
 from django.urls import reverse
 from django.db.models import Q
@@ -7,6 +9,7 @@ import markdown
 from .forms import IncidentForm
 from .models import Incident
 
+@method_decorator(login_required, name='dispatch') 
 class IndexView(generic.ListView):
     template_name = "incidents/index.html"
 
@@ -30,6 +33,7 @@ class IndexView(generic.ListView):
             context={"form": form},
         )
 
+@method_decorator(login_required, name='dispatch') 
 class DetailView(generic.DetailView):
     model = Incident
     template_name = 'incidents/detail.html'
@@ -41,6 +45,7 @@ class DetailView(generic.DetailView):
         context['incident'].description = markdown.markdown(context['incident'].description)
         return context
 
+@method_decorator(login_required, name='dispatch') 
 class EditIncidentView(generic.UpdateView):
     model = Incident
     template_name = "incidents/edit_incident.html"
@@ -49,6 +54,7 @@ class EditIncidentView(generic.UpdateView):
     def get_success_url(self):
         return reverse('incidents:detail', args=[self.object.pk])  # Redirecciona a la vista de detalle después de guardar
     
+@method_decorator(login_required, name='dispatch') 
 class IncidentTableView(generic.ListView):
     model = Incident
     template_name = "incidents/table.html"

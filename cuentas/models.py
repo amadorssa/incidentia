@@ -28,7 +28,7 @@ class Usuario(AbstractUser):
     correo = models.EmailField(unique=True)
     nombre = models.CharField(max_length=30)
     apellido = models.CharField(max_length=30)
-    foto_perfil = models.ImageField(upload_to='perfil/', blank=True, null=True) # Para almacenar la URL o ruta de la imagen (el ImageField daba problemas por culpa de Pillow)
+    foto_perfil = models.FileField(upload_to='perfil/', blank=True, null=True) # Para almacenar la URL o ruta de la imagen (el ImageField daba problemas por culpa de Pillow)
 
     USERNAME_FIELD = 'correo'
     REQUIRED_FIELDS = ['nombre', 'apellido']

@@ -7,7 +7,8 @@ class Incident(models.Model):
     incident_text = models.CharField(max_length=200)
     user_creator = models.CharField(max_length=16) #Cambiar por usuario con sesion iniciada
     pub_date = models.DateTimeField('date published', auto_now_add=True)
-    description = models.TextField(null=True, blank=True)  # Campo de descripción con soporte Markdown
+    # description = Markdownx(null=True, blank=True)  # Cambiar para cambiar a Markdownx 
+    description = models.TextField(null=True, blank=True) 
     
     #Regresar una descripcion del incidente
     def __str__(self):
