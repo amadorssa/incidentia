@@ -30,6 +30,8 @@ class Incident(models.Model):
     attachment = models.FileField(upload_to='media/', null=True, blank=True)  # Subir archivos opcional
 
     
+    start_date = models.DateTimeField('Fecha de inicio', null=True, blank=True)
+    due_date = models.DateTimeField('Fecha de vencimiento', null=True, blank=True)
     #Regresar una descripcion del incidente
     def __str__(self):
         return f"{self.incident_text} (by {self.user_creator} on {self.pub_date.strftime('%Y-%m-%d')})"

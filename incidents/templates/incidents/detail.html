@@ -1,5 +1,7 @@
 <h1>{{ incident.incident_text }}</h1>
-
+<p>{{ incident.description|safe }}</p>
+<p>Fecha de inicio: {{ incident.start_date|date:"d/m/Y H:i" }}</p>
+<p>Fecha de vencimiento: {{ incident.due_date|date:"d/m/Y H:i" }}</p>
 <p>Published on: {{ incident.pub_date }}</p>
 
 <p>Prioridad: {{ incident.prioridad }}</p>

@@ -14,6 +14,6 @@
 <h1>Agregar incidente.</h1>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}  <!-- Muestra el formulario -->
+    {{ form.as_p }}  <!-- Ahora incluirá los campos de fecha de inicio y vencimiento -->
     <button type="submit">Agregar</button>
 </form>
