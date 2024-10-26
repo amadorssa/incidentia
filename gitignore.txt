@@ -1,0 +1,42 @@
+# Archivos de bases de datos
+*.sqlite3
+
+# Archivos de migraciones compilados
+**/migrations/*.pyc
+**/migrations/__pycache__/
+
+# Archivos del cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configuración específica del entorno
+*.env
+*.local
+.DS_Store
+
+# Archivos de medios (imágenes subidas, etc.)
+/media/
+
+# Archivos estáticos generados automáticamente
+/staticfiles/
+/static/
+
+# Archivos de logs
+*.log
+
+# Dependencias instaladas localmente
+venv/
+env/
+.idea/
+.vscode/
+*.swp
+
+# Compilados de Pillow (librería de imágenes)
+*.jpg
+*.jpeg
+*.png
+
+# Archivos de configuración del sistema operativo o del editor de texto
+*.bak
+Thumbs.db

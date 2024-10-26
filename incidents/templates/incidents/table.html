@@ -25,23 +25,27 @@
     <table border="1">
         <thead>
             <tr>
-                <th>Incidente</th>
-                <th>Usuario</th>
-                <th>Descripcion</th>
-                <th>Fecha Publicacion</th>
+                <th style="text-align: center;">Incidente</th>
+                <th style="text-align: center;">Usuario</th>
+                <th style="text-align: center;">Descripcion</th>
+                <th style="text-align: center;">Fecha de inicio</th>
+               <th style="text-align: center;">Fecha de vencimiento</th>
+                <th style="text-align: center;">Fecha Publicacion</th>
             </tr>
         </thead>
         <tbody>
             {% for incident in incidents %}
             <tr>
-                <td><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></td>
-                <td>{{ incident.user_creator|default:"Anónimo" }}</td>
-                <td>{{ incident.description|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
-                <td>{{ incident.pub_date }}</td>
+                <td style="text-align: center;"><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></td>
+                <td style="text-align: center;">{{ incident.user_creator|default:"Anónimo" }}</td>
+                <td style="text-align: center;">{{ incident.description|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
+                <td style="text-align: center;">{{ incident.start_date|date:"d/m/Y" }}</td>
+                <td style="text-align: center;">{{ incident.due_date|date:"d/m/Y" }}</td>
+                <td style="text-align: center;">{{ incident.pub_date|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4">
+                <td colspan="6">
                     {% if request.GET.q %}
                         No se encontraron incidentes que coincidan con "{{ request.GET.q }}".
                     {% else %}
