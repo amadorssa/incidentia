@@ -35,7 +35,6 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Incident.objects.order_by("-pub_date")[:5]
 
-
 @method_decorator(login_required, name='dispatch') 
 class DetailView(generic.DetailView):
     model = Incident
