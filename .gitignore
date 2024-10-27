@@ -2,11 +2,13 @@
 *.sqlite3
 
 # Archivos de migraciones compilados
-**/migrations/*.pyc
-**/migrations/__pycache__/
+**/incidents/migrations/*.pyc
+**/incidents/migrations/__pycache__/
+**/cuentas/migrations/*.pyc
+**/cuentas/migrations/__pycache__/
 
 # Archivos del cache de Python
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -16,7 +18,7 @@ __pycache__/
 .DS_Store
 
 # Archivos de medios (imágenes subidas, etc.)
-/media/
+media/
 
 # Archivos estáticos generados automáticamente
 /staticfiles/

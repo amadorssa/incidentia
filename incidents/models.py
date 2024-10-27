@@ -35,4 +35,3 @@ class Incident(models.Model):
     #Regresar una descripcion del incidente
     def __str__(self):
         return f"{self.incident_text} (by {self.user_creator} on {self.pub_date.strftime('%Y-%m-%d')})"
-from markdownx.models import MarkdownxField
