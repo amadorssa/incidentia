@@ -9,47 +9,31 @@ import markdown
 from .forms import IncidentForm
 from .models import Incident
 
-@method_decorator(login_required, name='dispatch') 
+@method_decorator(login_required, name='dispatch')
 class IndexView(generic.ListView):
     template_name = "incidents/index.html"
+    context_object_name = "latest_incident_list"
 
     def get(self, request, *args, **kwargs):
-        """Mostrar el formulario usando GET requests."""
         form = IncidentForm()
         return self.render_form(form)
 
     def post(self, request, *args, **kwargs):
-        form = IncidentForm(request.POST)
+        form = IncidentForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()  # Guarda el nuevo incidente
-            return redirect("incidents:index")  # Redirecciona al index
-        return self.get(request, *args, **kwargs)  # Si no es válido, muestra el formulario
+            form.save()  # Guarda el nuevo incidente con archivo adjunto si existe
+            return redirect("incidents:index")  # Redirige al índice
+        return self.render_form(form)  # Muestra el formulario con errores si no es válido
 
     def render_form(self, form):
-        """Funcion para hacer render del formulario"""
         return self.response_class(
             request=self.request,
             template=self.template_name,
-            context={"form": form},
+            context={"form": form, "latest_incident_list": self.get_queryset()},
         )
 
-    context_object_name = "latest_incident_list"
-
     def get_queryset(self):
-        """Return the last five published incidents."""
         return Incident.objects.order_by("-pub_date")[:5]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = IncidentForm()  # Añadir el formulario al contexto
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form = IncidentForm(request.POST, request.FILES)  # Añadir request.FILES para manejar archivos
-        if form.is_valid():
-            form.save()  # Guarda el nuevo incidente junto con el archivo
-            return redirect("incidents:index")  # Redirecciona al index
-        return self.get(request, *args, **kwargs)  # Si no es válido, muestra el formulario
 
 @method_decorator(login_required, name='dispatch') 
 class DetailView(generic.DetailView):
