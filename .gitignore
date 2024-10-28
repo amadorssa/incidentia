@@ -8,6 +8,8 @@
 **/cuentas/migrations/__pycache__/
 
 # Archivos del cache de Python
+*.pyc
+__pycache__/
 **/__pycache__/
 *.py[cod]
 *$py.class
