@@ -1,3 +1,4 @@
+from django.http import JsonResponse  
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -53,8 +54,15 @@ class EditIncidentView(generic.UpdateView):
     template_name = "incidents/edit_incident.html"
     form_class = IncidentForm
 
+    def form_valid(self, form):
+        self.object = form.save()
+        
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':  # Verifica si la solicitud es AJAX
+            return JsonResponse({"message": "Changes saved successfully!"})
+        return super().form_valid(form)  # Si no es AJAX, procede con el flujo normal
+
     def get_success_url(self):
-        return reverse('incidents:detail', args=[self.object.pk])  # Redirecciona a la vista de detalle después de guardar
+        return reverse('incidents:detail', args=[self.object.pk])  # Redirige a la vista de detalle en caso de solicitud normal
     
 @method_decorator(login_required, name='dispatch') 
 class IncidentTableView(generic.ListView):
