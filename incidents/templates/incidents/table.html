@@ -9,28 +9,37 @@
     <a href="{% url 'incidents:index' %}">Regreso a Formulario</a>
     <h1>Tabla de Incidentes.</h1>
     <form action="{% url 'incidents:incident_table' %}" method="get">
-        <input name="q" type="text" placeholder="Buscar por titulo..."
-                value="{{ request.GET.q|default:'' }}">
+        <input name="q" type="text" placeholder="Buscar por título..." value="{{ request.GET.q|default:'' }}">
         <select name="user_creator">
             <option value="">-- Filtrar por Usuario --</option>
             {% for user in user_creators %}
-            <option value="{{ user }}"
-                    {% if request.GET.user_creator == user %}selected{% endif %}>
-                    {{ user|default:"Anónimo"}}
+            <option value="{{ user }}" {% if request.GET.user_creator == user %}selected{% endif %}>
+                {{ user|default:"Anónimo"}}
             </option>
             {% endfor %}
         </select>
         <button type="submit">Buscar</button>
     </form>
+
     <table border="1">
         <thead>
             <tr>
                 <th style="text-align: center;">Incidente</th>
                 <th style="text-align: center;">Usuario</th>
-                <th style="text-align: center;">Descripcion</th>
-                <th style="text-align: center;">Fecha de inicio</th>
-               <th style="text-align: center;">Fecha de vencimiento</th>
-                <th style="text-align: center;">Fecha Publicacion</th>
+                <th style="text-align: center;">Descripción</th>
+                <th style="text-align: center;">
+                    Fecha de inicio
+                </th>
+                <th style="text-align: center;">
+                    Fecha de vencimiento
+                    <!-- Botón de ordenamiento -->
+                    <a href="?{% if current_ordering == 'due_date' %}ordering=-due_date{% else %}ordering=due_date{% endif %}">⬍</a>
+                </th>
+                <th style="text-align: center;">
+                    Fecha de Publicación
+                    <!-- Botón de ordenamiento -->
+                    <a href="?{% if current_ordering == 'pub_date' %}ordering=-pub_date{% else %}ordering=pub_date{% endif %}">⬍</a>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -38,7 +47,7 @@
             <tr>
                 <td style="text-align: center;"><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></td>
                 <td style="text-align: center;">{{ incident.user_creator|default:"Anónimo" }}</td>
-                <td style="text-align: center;">{{ incident.description|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
+                <td style="text-align: center;">{{ incident.description|safe }}</td>
                 <td style="text-align: center;">{{ incident.start_date|date:"d/m/Y" }}</td>
                 <td style="text-align: center;">{{ incident.due_date|date:"d/m/Y" }}</td>
                 <td style="text-align: center;">{{ incident.pub_date|date:"d/m/Y" }}</td>
