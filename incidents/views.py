@@ -21,9 +21,12 @@ class IndexView(generic.ListView):
     def post(self, request, *args, **kwargs):
         form = IncidentForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()  # Guarda el nuevo incidente con archivo adjunto si existe
-            return redirect("incidents:index")  # Redirige al índice
-        return self.render_form(form)  # Muestra el formulario con errores si no es válido
+            # Asocia el incidente con el usuario autenticado antes de guardarlo
+            incident = form.save(commit=False)
+            incident.user_creator = request.user
+            incident.save()
+            return redirect("incidents:index")
+        return self.render_form(form)
 
     def render_form(self, form):
         return self.response_class(
@@ -33,7 +36,8 @@ class IndexView(generic.ListView):
         )
 
     def get_queryset(self):
-        return Incident.objects.order_by("-pub_date")[:5]
+        # Filtra los incidentes solo para el usuario autenticado
+        return Incident.objects.filter(user_creator=self.request.user).order_by("-pub_date")[:5]
 
 @method_decorator(login_required, name='dispatch') 
 class DetailView(generic.DetailView):
@@ -56,32 +60,33 @@ class EditIncidentView(generic.UpdateView):
     def get_success_url(self):
         return reverse('incidents:detail', args=[self.object.pk])  # Redirecciona a la vista de detalle después de guardar
     
-@method_decorator(login_required, name='dispatch') 
+@method_decorator(login_required, name='dispatch')
 class IncidentTableView(generic.ListView):
     model = Incident
     template_name = "incidents/table.html"
     context_object_name = "incidents"
 
     def get_queryset(self):
-        """Regresar todos los incidentes por fecha mas reciente."""
+        """Regresar todos los incidentes por fecha más reciente para el usuario autenticado."""
         query = self.request.GET.get("q", "")
-        user_creator = self.request.GET.get("user_creator", "")
 
         incidents = Incident.objects.filter(
-            Q(incident_text__icontains=query)
-        )
+            user_creator=self.request.user,  # Filtra por el usuario autenticado
+            incident_text__icontains=query
+        ).order_by("-pub_date")
 
-        # Filtar por usuario seleccionado
-        if user_creator:
-            incidents = incidents.filter(user_creator=user_creator)
-
-        # Ordenar por fecha de publicacion mas reciente
-        incidents = incidents.order_by("-pub_date")
-        # Convertir la descripcion a tipo Markdown para cada incidente
+        # Convertir la descripción a tipo Markdown para cada incidente
         for incident in incidents:
             incident.description = markdown.markdown(incident.description or '')
 
         return incidents
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtiene solo los nombres de usuario del usuario autenticado
+        context['user_creators'] = [self.request.user]
+        return context
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

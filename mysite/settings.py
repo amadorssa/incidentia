@@ -38,6 +38,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "incidents.apps.IncidentsConfig",
     'cuentas.apps.CuentasConfig',
+    'organizaciones.apps.OrganizacionesConfig',
     #'markdownx',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -66,7 +67,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'cuentas', 'templates')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
