@@ -4,28 +4,31 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.urls import reverse
 from django.db.models import Q
+from .models import Incident, Organizacion
 import markdown
 
 from .forms import IncidentForm
 from .models import Incident
 
-@method_decorator(login_required, name='dispatch')
 class IndexView(generic.ListView):
     template_name = "incidents/index.html"
     context_object_name = "latest_incident_list"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, organizacion_id=None, *args, **kwargs):
+        # Obtener la organización actual
+        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
         form = IncidentForm()
         return self.render_form(form)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, organizacion_id=None, *args, **kwargs):
+        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
         form = IncidentForm(request.POST, request.FILES)
         if form.is_valid():
-            # Asocia el incidente con el usuario autenticado antes de guardarlo
             incident = form.save(commit=False)
             incident.user_creator = request.user
+            incident.organizacion = self.organizacion_actual  # Asocia el incidente con la organización
             incident.save()
-            return redirect("incidents:index")
+            return redirect("incidents:index", organizacion_id=organizacion_id)
         return self.render_form(form)
 
     def render_form(self, form):
@@ -36,8 +39,13 @@ class IndexView(generic.ListView):
         )
 
     def get_queryset(self):
-        # Filtra los incidentes solo para el usuario autenticado
-        return Incident.objects.filter(user_creator=self.request.user).order_by("-pub_date")[:5]
+        return Incident.objects.filter(
+            user_creator=self.request.user, 
+            organizacion=self.organizacion_actual  # Filtra por la organización actual
+        ).order_by("-pub_date")[:5]
+
+
+
 
 @method_decorator(login_required, name='dispatch') 
 class DetailView(generic.DetailView):

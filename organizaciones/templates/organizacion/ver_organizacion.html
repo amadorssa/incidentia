@@ -2,6 +2,8 @@
 <p>Correo: {{ organizacion.correo }}</p>
 <p>Código de acceso: {{ organizacion.codigo_acceso }}</p>
 
+<li><a href="{% url 'perfil' %}">Perfil</a></li>
+
 <h2>Miembros</h2>
 <ul>
     {% for miembro in miembros %}

@@ -28,6 +28,15 @@ def mis_organizaciones(request):
     organizaciones = MiembroOrganizacion.objects.filter(usuario=request.user)
     return render(request, 'organizacion/mis_organizaciones.html', {'organizaciones': organizaciones})
 
+
+#@login_required
+#def ver_organizacion(request, organizacion_id):
+#    organizacion = get_object_or_404(Organizacion, id=organizacion_id)
+#    miembros = organizacion.miembros.all()
+#    
+#    # Redirigir a la página de incidentes de la organización
+#    return redirect('incidents:index', organizacion_id=organizacion.id)
+
 @login_required
 def ver_organizacion(request, organizacion_id):
     organizacion = get_object_or_404(Organizacion, id=organizacion_id)

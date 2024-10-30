@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 #from markdownx.models import MarkdownxField
 from django.conf import settings
+from organizaciones.models import Organizacion
 
 class Incident(models.Model):
     PRIORIDAD_CHOICES = [
@@ -23,7 +24,8 @@ class Incident(models.Model):
     ]
 
     incident_text = models.CharField(max_length=200, null=True, blank=True)
-    user_creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Relación con Usuario
+    organizacion = models.ForeignKey(Organizacion, on_delete=models.CASCADE, related_name="incidents", null=True, blank=True)
+    user_creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     description = models.TextField(null=True, blank=True)
     prioridad = models.CharField(max_length=7, choices=PRIORIDAD_CHOICES, default='MEDIA')
