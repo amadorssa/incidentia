@@ -6,7 +6,6 @@
 
 <p>Prioridad: {{ incident.prioridad }}</p>
 <p>Categoría: {{ incident.category }}</p>
-<p>{{ incident.description|safe }}</p>
 
 {% if incident.attachment %}
     <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>

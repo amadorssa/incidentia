@@ -2,33 +2,41 @@
 <form id="incident-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" id="save-button">Save changes</button>
+    <button type="submit" id="save-button" name="action" value="save">Save changes</button>
+    <button type="submit" id="save-exit-button" name="action" value="save_exit">Save and Exit</button>
 </form>
 
 <div id="success-message" style="display: none; color: green;">
     Changes saved successfully!
 </div>
 
-<!-- Enlace para volver a la vista de detalles del incidente -->
 <a href="{% url 'incidents:detail' incident.pk %}">Back to Incident Details</a>
 
 <script>
     document.getElementById('incident-form').addEventListener('submit', function(event) {
-        event.preventDefault();  // Evita el envío normal del formulario
+        const action = document.activeElement.getAttribute('value');  // Identifica el botón presionado
+        
+        // Si se presiona "Save and Exit", permite el flujo normal de solicitud
+        if (action === 'save_exit') {
+            return;  // No previene el envío del formulario
+        }
+
+        // Si se presiona "Save changes", previene el envío normal y hace una solicitud AJAX
+        event.preventDefault();  
 
         const formData = new FormData(this);
 
-        fetch("{% url 'incidents:edit' incident.pk %}", {  // Asegúrate de que esta URL esté definida para la edición
+        fetch("{% url 'incidents:edit' incident.pk %}", {
             method: "POST",
             body: formData,
             headers: {
                 "X-CSRFToken": "{{ csrf_token }}",
-                "X-Requested-With": "XMLHttpRequest",  // Añadir este header para que Django reconozca la solicitud AJAX
+                "X-Requested-With": "XMLHttpRequest",
             },
         })
         .then(response => {
             if (response.ok) {
-                return response.json();  // Obtiene la respuesta JSON en caso de éxito
+                return response.json();
             }
             throw new Error("Error en la respuesta de la solicitud.");
         })
