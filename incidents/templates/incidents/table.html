@@ -6,9 +6,9 @@
     <title>Tablas de Incidentes</title>
 </head>
 <body>
-    <a href="{% url 'incidents:index' %}">Regreso a Formulario</a>
+    <a href="{% url 'incidents:index' organizacion_id=organizacion_id %}">Regreso a Formulario</a>
     <h1>Tabla de Incidentes.</h1>
-    <form action="{% url 'incidents:incident_table' %}" method="get">
+    <form action="{% url 'incidents:incident_table' organizacion_id=organizacion_id %}" method="get">
         <input name="q" type="text" placeholder="Buscar por titulo..."
                 value="{{ request.GET.q|default:'' }}">
         <select name="user_creator">
@@ -25,6 +25,7 @@
     <table border="1">
         <thead>
             <tr>
+                <th style="text-align: center;">ID</th>
                 <th style="text-align: center;">Incidente</th>
                 <th style="text-align: center;">Usuario</th>
                 <th style="text-align: center;">Descripcion</th>
@@ -36,6 +37,7 @@
         <tbody>
             {% for incident in incidents %}
             <tr>
+                <td style="text-align: center;">{{ incident.id }}</td> 
                 <td style="text-align: center;"><a href="{% url 'incidents:detail' incident.id %}">{{ incident.incident_text }}</a></td>
                 <td style="text-align: center;">{{ incident.user_creator|default:"Anónimo" }}</td>
                 <td style="text-align: center;">{{ incident.description|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->

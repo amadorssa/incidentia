@@ -36,7 +36,11 @@ class IndexView(generic.ListView):
         return self.response_class(
             request=self.request,
             template=self.template_name,
-            context={"form": form, "latest_incident_list": self.get_queryset()},
+            context={
+                "form": form,
+                "latest_incident_list": self.get_queryset(),
+                "organizacion_id": self.organizacion_actual.id  # Agrega el ID de la organización
+            },
         )
 
     def get_queryset(self):
@@ -58,6 +62,8 @@ class DetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         # Convertir la descripción de Markdown a HTML
         context['incident'].description = markdown.markdown(context['incident'].description)
+        # Obtener la organización a la que pertenece el incidente
+        context['organizacion_id'] = context['incident'].organizacion.id  # Agrega el ID de la organización
         return context
 
 @method_decorator(login_required, name='dispatch') 
@@ -85,13 +91,18 @@ class IncidentTableView(generic.ListView):
     def get_queryset(self):
         """Regresar todos los incidentes por fecha más reciente para el usuario autenticado."""
         query = self.request.GET.get("q", "")
-
+        user_creator = self.request.GET.get("user_creator")
+        
+        # Filtra los incidentes basándose en el usuario y el parámetro de búsqueda
         incidents = Incident.objects.filter(
-            user_creator=self.request.user,  # Filtra por el usuario autenticado
-            incident_text__icontains=query
+            user_creator=self.request.user,
+            incident_text__icontains=query,
         ).order_by("-pub_date")
+        
+        if user_creator:
+            incidents = incidents.filter(user_creator=user_creator)
 
-        # Convertir la descripción a tipo Markdown para cada incidente
+        # Convierte la descripción a tipo Markdown para cada incidente
         for incident in incidents:
             incident.description = markdown.markdown(incident.description or '')
 
@@ -99,16 +110,15 @@ class IncidentTableView(generic.ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Obtiene solo los nombres de usuario del usuario autenticado
-        context['user_creators'] = [self.request.user]
-        return context
-
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_creators = ( Incident.objects.values_list('user_creator', flat=True)
-                        .distinct()
-                        .exclude(user_creator__isnull=True))
-
+        # Obtiene el ID de la organización desde los argumentos de la URL
+        organizacion_id = self.kwargs.get("organizacion_id")
+        context['organizacion_id'] = organizacion_id
+        
+        # Obtiene los usuarios que crearon incidentes (opcional)
+        user_creators = (
+            Incident.objects.values_list('user_creator', flat=True)
+            .distinct()
+            .exclude(user_creator__isnull=True)
+        )
         context['user_creators'] = user_creators
         return context

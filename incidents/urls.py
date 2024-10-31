@@ -9,7 +9,7 @@ urlpatterns = [
     path('organizacion/<int:organizacion_id>/', IndexView.as_view(), name='index'),  # Modifica para incluir el ID de la organización
     path('incident/<int:pk>/', DetailView.as_view(), name='detail'),
     path('incident/<int:pk>/edit/', EditIncidentView.as_view(), name='edit_incident'),
-    path("table/", views.IncidentTableView.as_view(), name="incident_table"),
+    path('<int:organizacion_id>/table/', views.IncidentTableView.as_view(), name='incident_table'),
 ]
 
 if settings.DEBUG:
