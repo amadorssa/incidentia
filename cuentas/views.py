@@ -21,7 +21,7 @@ def iniciar_sesion(request):
         usuario = authenticate(request, correo=correo, password=password)
         if usuario is not None:
             login(request, usuario)
-            return redirect('/incidents/')  # Nota para Raul: Redirige a la página de admin, cambiala para que 
+            return redirect('/organizaciones/mis-organizaciones/')  # Nota para Raul: Redirige a la página de admin, cambiala para que 
                                         #lleve a la info del usuario si quieres
         else:
             return render(request, 'iniciar_sesion.html', {'error': 'Credenciales incorrectas.'})

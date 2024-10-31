@@ -13,6 +13,7 @@ __pycache__/
 **/__pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # Configuración específica del entorno
 *.env
@@ -20,7 +21,7 @@ __pycache__/
 .DS_Store
 
 # Archivos de medios (imágenes subidas, etc.)
-media/
+**/perfil/
 
 # Archivos estáticos generados automáticamente
 /staticfiles/
@@ -36,10 +37,6 @@ env/
 .vscode/
 *.swp
 
-# Compilados de Pillow (librería de imágenes)
-*.jpg
-*.jpeg
-*.png
 
 # Archivos de configuración del sistema operativo o del editor de texto
 *.bak

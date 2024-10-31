@@ -2,12 +2,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from . import views
+from .views import IndexView, DetailView, EditIncidentView
 
 app_name = "incidents"
 urlpatterns = [
-    path("", views.IndexView.as_view(), name="index"),
-    path("<int:pk>/", views.DetailView.as_view(), name="detail"),
-    path("<int:pk>/edit/", views.EditIncidentView.as_view(), name="edit"),
+    path('organizacion/<int:organizacion_id>/', IndexView.as_view(), name='index'),  # Modifica para incluir el ID de la organización
+    path('incident/<int:pk>/', DetailView.as_view(), name='detail'),
+    path('incident/<int:pk>/edit/', EditIncidentView.as_view(), name='edit_incident'),
     path("table/", views.IncidentTableView.as_view(), name="incident_table"),
 ]
 

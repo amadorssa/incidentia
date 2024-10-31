@@ -5,26 +5,32 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.urls import reverse
 from django.db.models import Q
+from .models import Incident, Organizacion
 import markdown
 
 from .forms import IncidentForm
 from .models import Incident
 
-@method_decorator(login_required, name='dispatch')
 class IndexView(generic.ListView):
     template_name = "incidents/index.html"
     context_object_name = "latest_incident_list"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, organizacion_id=None, *args, **kwargs):
+        # Obtener la organización actual
+        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
         form = IncidentForm()
         return self.render_form(form)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, organizacion_id=None, *args, **kwargs):
+        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
         form = IncidentForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()  # Guarda el nuevo incidente con archivo adjunto si existe
-            return redirect("incidents:index")  # Redirige al índice
-        return self.render_form(form)  # Muestra el formulario con errores si no es válido
+            incident = form.save(commit=False)
+            incident.user_creator = request.user
+            incident.organizacion = self.organizacion_actual  # Asocia el incidente con la organización
+            incident.save()
+            return redirect("incidents:index", organizacion_id=organizacion_id)
+        return self.render_form(form)
 
     def render_form(self, form):
         return self.response_class(
@@ -34,7 +40,13 @@ class IndexView(generic.ListView):
         )
 
     def get_queryset(self):
-        return Incident.objects.order_by("-pub_date")[:5]
+        return Incident.objects.filter(
+            user_creator=self.request.user, 
+            organizacion=self.organizacion_actual  # Filtra por la organización actual
+        ).order_by("-pub_date")[:5]
+
+
+
 
 @method_decorator(login_required, name='dispatch') 
 class DetailView(generic.DetailView):
@@ -64,32 +76,33 @@ class EditIncidentView(generic.UpdateView):
     def get_success_url(self):
         return reverse('incidents:detail', args=[self.object.pk])  # Redirige a la vista de detalle en caso de solicitud normal
     
-@method_decorator(login_required, name='dispatch') 
+@method_decorator(login_required, name='dispatch')
 class IncidentTableView(generic.ListView):
     model = Incident
     template_name = "incidents/table.html"
     context_object_name = "incidents"
 
     def get_queryset(self):
-        """Regresar todos los incidentes por fecha mas reciente."""
+        """Regresar todos los incidentes por fecha más reciente para el usuario autenticado."""
         query = self.request.GET.get("q", "")
-        user_creator = self.request.GET.get("user_creator", "")
 
         incidents = Incident.objects.filter(
-            Q(incident_text__icontains=query)
-        )
+            user_creator=self.request.user,  # Filtra por el usuario autenticado
+            incident_text__icontains=query
+        ).order_by("-pub_date")
 
-        # Filtar por usuario seleccionado
-        if user_creator:
-            incidents = incidents.filter(user_creator=user_creator)
-
-        # Ordenar por fecha de publicacion mas reciente
-        incidents = incidents.order_by("-pub_date")
-        # Convertir la descripcion a tipo Markdown para cada incidente
+        # Convertir la descripción a tipo Markdown para cada incidente
         for incident in incidents:
             incident.description = markdown.markdown(incident.description or '')
 
         return incidents
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtiene solo los nombres de usuario del usuario autenticado
+        context['user_creators'] = [self.request.user]
+        return context
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

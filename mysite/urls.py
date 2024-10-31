@@ -25,6 +25,7 @@ urlpatterns = [
     #path('markdownx/', include('markdownx.urls')),
     path('cuentas/', include('cuentas.urls')),  # Asegúrate de incluir tu aplicación aquí
     path('admin/', admin.site.urls),
+    path("organizaciones/", include("organizaciones.urls")),
 ]
 
 if settings.DEBUG:
