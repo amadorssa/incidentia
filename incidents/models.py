@@ -36,4 +36,3 @@ class Incident(models.Model):
 
     def __str__(self):
         return f"{self.incident_text} (by {self.user_creator} on {self.pub_date.strftime('%Y-%m-%d')})"
-

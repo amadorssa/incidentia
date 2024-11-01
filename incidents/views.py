@@ -91,13 +91,14 @@ class IncidentTableView(generic.ListView):
     def get_queryset(self):
         """Regresar todos los incidentes por fecha más reciente para el usuario autenticado."""
         query = self.request.GET.get("q", "")
+        ordering = self.request.GET.get("ordering", "-pub_date")
         user_creator = self.request.GET.get("user_creator")
         
         # Filtra los incidentes basándose en el usuario y el parámetro de búsqueda
         incidents = Incident.objects.filter(
             user_creator=self.request.user,
             incident_text__icontains=query,
-        ).order_by("-pub_date")
+        ).order_by(ordering)
         
         if user_creator:
             incidents = incidents.filter(user_creator=user_creator)
