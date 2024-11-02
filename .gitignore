@@ -41,3 +41,6 @@ env/
 # Archivos de configuración del sistema operativo o del editor de texto
 *.bak
 Thumbs.db
+
+# Attachments
+/media/

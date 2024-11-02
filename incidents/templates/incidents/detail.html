@@ -6,9 +6,21 @@
 <p>Prioridad: {{ incident.prioridad }}</p>
 <p>Categoría: {{ incident.category }}</p>
 
-{% if incident.attachment %}
-    <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
-{% endif %}
+<h2>Attachments</h2>
+<ul>
+    {% for attachment in incident.attachments.all %}
+        <li>
+            <a href="{{ attachment.file.url }}">{{ attachment.file.name|basename }}</a>
+            <!-- Delete attachment form -->
+            <form action="{% url 'incidents:delete_attachment' attachment.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar este adjunto?');">Eliminar</button>
+            </form>
+        </li>
+    {% empty %}
+        <li>No hay adjuntos.</li>
+    {% endfor %}
+</ul>
 
 <!-- Enlace para editar el incidente -->
 <a href="{% url 'incidents:edit_incident' incident.id %}">Editar incidente</a>

@@ -1,12 +1,14 @@
 from django import forms
-from .models import Incident
+from .models import Incident, Attachment
 from django.core.exceptions import ValidationError 
 from django.utils import timezone 
+from django.forms.models import inlineformset_factory
+
 
 class IncidentForm(forms.ModelForm):
     class Meta:
         model = Incident
-        fields = ['incident_text', 'user_creator', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date']  
+        fields = ['incident_text', 'description', 'prioridad', 'category', 'start_date', 'due_date']  
         labels = {
             'incident_text': 'Nombre',
             'user_creator': 'Agregado por',
@@ -38,4 +40,19 @@ class IncidentForm(forms.ModelForm):
 
         return cleaned_data
 
+class AttachmentForm(forms.ModelForm):
+    class Meta:
+        model = Attachment
+        fields = ['file']
+        widgets = {
+            'file': forms.ClearableFileInput(),
+        }
 
+
+AttachmentFormSet = inlineformset_factory(
+    Incident,
+    Attachment,
+    form=AttachmentForm,
+    extra=3,
+    can_delete=True
+)

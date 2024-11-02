@@ -14,8 +14,9 @@
 {% endif %}
 
 <h1>Agregar incidente.</h1>
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" action="{% url 'incidents:index' organizacion_id=organizacion_id %}">
     {% csrf_token %}
     {{ form.as_p }}  <!-- Ahora incluirá los campos de fecha de inicio y vencimiento -->
+    <button type="button" id="add-attachment">Adjuntar archivo</button>
     <button type="submit">Agregar</button>
 </form>

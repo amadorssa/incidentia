@@ -1,7 +1,18 @@
 <h1>Edit Incident</h1>
-<form id="incident-form" method="post" enctype="multipart/form-data">
+<form id="incident-form" method="post" enctype="multipart/form-data" action="{% url 'incidents:edit_incident' incident.pk %}">
     {% csrf_token %}
     {{ form.as_p }}
+    <h2>Attachments</h2>
+    {{ attachment_formset.management_form }}
+    {% for form in attachment_formset %}
+        <div class="attachment-form">
+            {{ form.as_p }}
+            {% if form.instance.pk %}
+                <label for="{{ form.prefix }}-DELETE">Delete:</label>
+                {{ form.DELETE }}
+            {% endif %}
+        </div>
+    {% endfor %}
     <button type="submit" id="save-button" name="action" value="save">Save changes</button>
     <button type="submit" id="save-exit-button" name="action" value="save_exit">Save and Exit</button>
 </form>

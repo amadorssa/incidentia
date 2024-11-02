@@ -8,6 +8,7 @@ urlpatterns = [
     path('iniciar-sesion/', iniciar_sesion, name='iniciar_sesion'),
     path('perfil/', perfil, name='perfil'),
     path('cerrar-sesion/', cerrar_sesion, name='cerrar_sesion'),  # Nueva URL para cerrar sesión
+    
 ]
 
 if settings.DEBUG:
