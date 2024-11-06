@@ -1,17 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
 <h1>Incidente #{{ incident.id }} - {{ incident.incident_text }}</h1> <!-- Muestra el ID junto al título -->
 <p>{{ incident.description|safe }}</p>
 <p>Fecha de inicio: {{ incident.start_date|date:"d/m/Y H:i" }}</p>
 <p>Fecha de vencimiento: {{ incident.due_date|date:"d/m/Y H:i" }}</p>
 <p>Publicado en: {{ incident.pub_date }}</p>
-<p>Prioridad: {{ incident.prioridad }}</p>
-<p>Categoría: {{ incident.category }}</p>
+<p>Prioridad: {{ incident.get_prioridad_display }}</p>
+<p>Categoría: {{ incident.get_category_display }}</p>
+
+{% if related_incident %}
+    <div class="subordinate-info">
+        <p><strong>Subordinado a:</strong> 
+            <a href="{% url 'incidents:detail' related_incident.pk %}">
+                {{ related_incident.incident_text }}
+            </a>
+        </p>
+    </div>
+{% else %}
+    <p>No hay incidente subordinado.</p>
+{% endif %}
 
 {% if incident.attachment %}
     <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
 {% endif %}
 
 <!-- Enlace para editar el incidente -->
-<a href="{% url 'incidents:edit_incident' incident.id %}">Editar incidente</a>
+<a href="{% url 'incidents:edit_incident' organizacion_id=organizacion_id pk=incident.id %}">Editar incidente</a>
 
 <!-- Enlace para volver a la lista de incidentes -->
 <a href="{% url 'incidents:index' organizacion_id=organizacion_id %}">Regresar a la lista de incidentes</a>
+
+<!-- Ver ultima fecha de modificación -->
+<p>Última modificación: {{ incident.last_modified }}</p>
+
+

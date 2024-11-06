@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* Estilos para el modal */
+        #incidentPopup {
+            display: none;
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 80%;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            z-index: 1000;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+
+<a href="{% url 'perfil' %}">Inicio</a>
+<a href="{% url 'incidents:incident_table' organizacion_id=organizacion_id %}">Inicidentes</a>
+<a href="{% url 'incidents:incident_table' organizacion_id=organizacion_id %}">Reportes</a>
+<a href="{% url 'perfil' %}">Perfil</a>
+<body>
+
+<h1>Agregar incidente.</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Ahora incluirá los campos de fecha de inicio y vencimiento -->
+    <input type="hidden" id="related-incident-id" name="related_incident">
+
+    <button type="button" onclick="openPopup()">Subordinar incidente</button>
+    <button type="submit">Agregar</button>
+</form>
+
+<div id="overlay"></div>
+<div id="incidentPopup">
+    <h2>Incidentes en la Organización</h2>
+    <ul>
+        {% for incident in incidentes_organizacion %}
+            <li>
+                {{ incident.incident_text }} - {{ incident.pub_date }}
+                <button type="button" onclick="selectIncident('{{ incident.id }}', '{{ incident.incident_text }}')">Agregar</button>
+            </li>
+        {% endfor %}
+    </ul>
+    <button type="button" onclick="closePopup()">Cerrar</button>
+</div>
+
+<script>
+    function openPopup() {
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('incidentPopup').style.display = 'block';
+    }
+
+    function closePopup() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('incidentPopup').style.display = 'none';
+    }
+
+    function selectIncident(incidentId, incidentText) {
+        document.getElementById('related-incident-id').value = incidentId;
+        alert("Incidente relacionado: " + incidentText);
+        closePopup();
+    }
+</script>
+
+</body>
+</html>
+

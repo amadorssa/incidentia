@@ -13,12 +13,18 @@ class IncidentForm(forms.ModelForm):
             'description': 'Descripción',
             'start_date': 'Fecha de inicio',
             'due_date': 'Fecha de vencimiento',
+            'attachment': 'Adjunto',
+            'prioridad': 'Prioridad',
+            'category': 'Categoría',
+            'related_incidents': 'Incidentes relacionados',
         }
 
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
             'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'related_incidents': forms.SelectMultiple(attrs={'class': 'form-control'}),
+
         }
 
     def clean(self):
@@ -30,12 +36,7 @@ class IncidentForm(forms.ModelForm):
         if start_date and due_date and start_date > due_date:
             raise ValidationError("La fecha de inicio no puede ser posterior a la fecha de vencimiento.")
 
-        if due_date and start_date and due_date < start_date:
-            raise ValidationError("La fecha de vencimiento no puede ser anterior a la fecha de inicio.")
-
-        if start_date and start_date < pub_date:
-            raise ValidationError("La fecha de inicio no puede ser anterior a la fecha de publicación.")
-
         return cleaned_data
+
 
 

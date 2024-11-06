@@ -6,7 +6,7 @@
     <title>Tablas de Incidentes</title>
 </head>
 <body>
-    <a href="{% url 'incidents:index' organizacion_id=organizacion_id %}">Regreso a Formulario</a>
+    <a href="{% url 'incidents:add_incident' organizacion_id=organizacion_id %}">Regreso a Formulario</a>
     <h1>Tabla de Incidentes.</h1>
 
     <form action="{% url 'incidents:incident_table' organizacion_id=organizacion_id %}" method="get">

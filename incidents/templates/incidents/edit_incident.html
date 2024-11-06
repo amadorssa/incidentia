@@ -1,18 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Estilos para el modal */
+        #incidentPopup {
+            display: none;
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 80%;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            z-index: 1000;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+
 <h1>Edit Incident</h1>
 <form id="incident-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+    
+    <!-- Campo oculto para almacenar el ID del incidente subordinado -->
+    <input type="hidden" id="related-incident-id" name="related_incident">
+
+    <!-- Botón para abrir el modal de incidentes -->
+    <button type="button" onclick="openPopup()">Subordinar incidente</button>
+
+    <input type="hidden" id="related-incidents" name="related_incidents">
     <button type="submit" id="save-button" name="action" value="save">Save changes</button>
     <button type="submit" id="save-exit-button" name="action" value="save_exit">Save and Exit</button>
 </form>
 
 <div id="success-message" style="display: none; color: green;">
-    Changes saved successfully!
+    ¡Cambios guardados correctamente!
+</div>
+
+<!-- Modal para mostrar los incidentes de la organización -->
+<div id="overlay"></div>
+<div id="incidentPopup">
+    <h2>Incidentes en la Organización</h2>
+    <ul>
+        {% for incident in incidentes_organizacion %}
+            <li>
+                {{ incident.incident_text }} - {{ incident.pub_date }}
+                <button type="button" onclick="selectIncident('{{ incident.id }}', '{{ incident.incident_text }}')">Agregar</button>
+            </li>
+        {% endfor %}
+    </ul>
+    <button type="button" onclick="closePopup()">Cerrar</button>
 </div>
 
 <a href="{% url 'incidents:detail' incident.pk %}">Back to Incident Details</a>
 
 <script>
+    // Funciones para abrir y cerrar el modal
+    function openPopup() {
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('incidentPopup').style.display = 'block';
+    }
+
+    function closePopup() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('incidentPopup').style.display = 'none';
+    }
+
+    // Función para seleccionar un incidente y agregarlo al campo oculto
+    function selectIncident(incidentId, incidentText) {
+        document.getElementById('related-incident-id').value = incidentId;
+        alert("Incidente relacionado: " + incidentText);
+        closePopup();
+    }
+
     document.getElementById('incident-form').addEventListener('submit', function(event) {
         const action = document.activeElement.getAttribute('value');  // Identifica el botón presionado
         
@@ -26,7 +101,7 @@
 
         const formData = new FormData(this);
 
-        fetch("{% url 'incidents:edit_incident' incident.pk %}", {
+        fetch("{% url 'incidents:edit_incident' organizacion_id=organizacion_id pk=incident.id %}", {
             method: "POST",
             body: formData,
             headers: {

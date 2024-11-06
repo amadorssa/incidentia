@@ -16,8 +16,6 @@ class Organizacion(models.Model):
             self.codigo_acceso = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         super().save(*args, **kwargs)
 
-
-
 class MiembroOrganizacion(models.Model):
     ROL_ADMINISTRADOR = 'ADMINISTRADOR'
     ROL_USUARIO = 'USUARIO'
