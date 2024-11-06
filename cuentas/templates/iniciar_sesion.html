@@ -11,6 +11,7 @@
         <input type="email" name="correo" placeholder="Correo" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Iniciar Sesión</button>
+        <button type="button" onclick="location.href = '/cuentas/registro'">Registrarse</button>
     </form>
     {% if error %}
         <p style="color:red;">{{ error }}</p>

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Organizacion, MiembroOrganizacion
 from django.shortcuts import render
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -18,7 +19,11 @@ def unirse_organizacion(request):
     if request.method == "POST":
         codigo = request.POST.get('codigo')
         organizacion = get_object_or_404(Organizacion, codigo_acceso=codigo)
-        MiembroOrganizacion.objects.get_or_create(usuario=request.user, organizacion=organizacion, rol=MiembroOrganizacion.ROL_USUARIO)
+        miembro, created = MiembroOrganizacion.objects.get_or_create(usuario=request.user, organizacion=organizacion, rol=MiembroOrganizacion.ROL_USUARIO)
+        if created:
+            messages.success(request, "Te has unido a la organización.")
+        else:
+            messages.warning(request, "Ya eres miembro de esta organización.")
         return redirect('perfil')
     return render(request, 'organizacion/unirse_organizacion.html')
 
@@ -40,5 +45,7 @@ def mis_organizaciones(request):
 @login_required
 def ver_organizacion(request, organizacion_id):
     organizacion = get_object_or_404(Organizacion, id=organizacion_id)
+    if not organizacion.miembros.filter(usuario=request.user).exists():
+        return redirect('mis_organizaciones')
     miembros = organizacion.miembros.all()
     return render(request, 'organizacion/ver_organizacion.html', {'organizacion': organizacion, 'miembros': miembros})

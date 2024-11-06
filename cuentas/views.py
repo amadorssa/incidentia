@@ -1,20 +1,40 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegistroFormulario
-from .forms import PerfilFormulario
+from django.contrib import messages 
+from .forms import RegistroFormulario, PerfilFormulario
+from .models import Usuario, UsuarioManager
 
 def registro(request):
+    if request.user.is_authenticated:
+        messages.info(request, "Ya has iniciado sesión.")
+        return redirect('perfil')
+
     if request.method == 'POST':
         formulario = RegistroFormulario(request.POST)
+
+        correo = request.POST.get('correo')  # Obtiene el correo del formulario
+
+        # Validar si el correo ya está registrado
+        if Usuario.objects.filter(correo=correo).exists() or UsuarioManager.objects.filter(correo=correo).exists():
+            messages.error(request, "Ya existe una cuenta registrada con este correo. Inicia sesión.")
+            return redirect('iniciar_sesion')  # Redirige a la página de inicio de sesión
+
+
         if formulario.is_valid():
             formulario.save()
-            return redirect('iniciar_sesion')  # 'iniciar_sesion'
+            return redirect('iniciar_sesion')
+        else:
+            messages.error(request, "Error en el registro. Inténtalo de nuevo.")
     else:
         formulario = RegistroFormulario()
     return render(request, 'registro.html', {'formulario': formulario})
 
 def iniciar_sesion(request):
+    if request.user.is_authenticated:
+        messages.info(request, "Ya has iniciado sesión.")
+        return redirect('perfil')
+
     if request.method == 'POST':
         correo = request.POST['correo']
         password = request.POST['password']
@@ -31,6 +51,7 @@ def iniciar_sesion(request):
 #LOGOUT
 def cerrar_sesion(request):
     logout(request)
+    messages.success(request, "Has cerrado sesión exitosamente.")
     return redirect('iniciar_sesion')
 
 @login_required

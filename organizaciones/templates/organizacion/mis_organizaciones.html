@@ -8,7 +8,7 @@
 <ul>
     {% for miembro in organizaciones %}
         <li>
-            <a href="{% url 'incidents:index' miembro.organizacion.id %}">{{ miembro.organizacion.nombre }}</a>
+            <a href="{% url 'incidents:incident_table' miembro.organizacion.id %}">{{ miembro.organizacion.nombre }}</a>
             - <a href="{% url 'ver_organizacion' miembro.organizacion.id %}">Detalles</a>
         </li>
     {% endfor %}
