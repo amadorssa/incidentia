@@ -1,0 +1,15 @@
+<h1>Mis Organizaciones</h1>
+
+<nav>
+    <a href="{% url 'create_organization' %}">Crear Organización</a>
+    <a href="{% url 'join_organization' %}">Unirse a Organización</a>
+</nav>
+
+<ul>
+    {% for miembro in organizaciones %}
+        <li>
+            <a href="{% url 'incidents:incident_table' miembro.organizacion.slug %}">{{ miembro.organizacion.nombre }}</a>
+            - <a href="{% url 'organization_detail' miembro.organizacion.slug %}">Detalles</a>
+        </li>
+    {% endfor %}
+</ul>

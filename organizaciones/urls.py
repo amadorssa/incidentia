@@ -1,9 +1,10 @@
 from django.urls import path
-from . import views
+from .views import create_organization, join_organization, my_organizations, organization_detail
 
 urlpatterns = [
-    path('crear/', views.crear_organizacion, name='crear_organizacion'),
-    path('unirse/', views.unirse_organizacion, name='unirse_organizacion'),
-    path('mis-organizaciones/', views.mis_organizaciones, name='mis_organizaciones'),
-    path('organizacion/<int:organizacion_id>/', views.ver_organizacion, name='ver_organizacion'),
+    path('create/', create_organization, name='create_organization'),
+    path('join/', join_organization, name='join_organization'),
+    path('organizations/', my_organizations, name='my_organizations'),
+    path('<slug:slug>/', organization_detail, name='organization_detail'),
+
 ]

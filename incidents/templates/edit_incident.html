@@ -67,9 +67,24 @@
     <button type="button" onclick="closePopup()">Cerrar</button>
 </div>
 
-<a href="{% url 'incidents:detail' incident.pk %}">Back to Incident Details</a>
+<a href="{% url 'incidents:detail' slug=slug pk=incident.pk %}">Back to Incident Details</a>
 
 <script>
+
+    // Función para seleccionar un incidente y agregarlo al campo oculto
+    function selectIncident(incidentId, incidentText) {
+        const relatedIncidentsField = document.getElementById('related-incidents');
+        
+        // Comprueba si el ID ya está en el campo oculto
+        if (!relatedIncidentsField.value.includes(incidentId)) {
+            const currentValue = relatedIncidentsField.value;
+            relatedIncidentsField.value = currentValue ? `${currentValue},${incidentId}` : incidentId;
+            alert("Incidente relacionado agregado: " + incidentText);
+        }
+        
+        closePopup();
+    }
+
     // Funciones para abrir y cerrar el modal
     function openPopup() {
         document.getElementById('overlay').style.display = 'block';
@@ -81,12 +96,6 @@
         document.getElementById('incidentPopup').style.display = 'none';
     }
 
-    // Función para seleccionar un incidente y agregarlo al campo oculto
-    function selectIncident(incidentId, incidentText) {
-        document.getElementById('related-incident-id').value = incidentId;
-        alert("Incidente relacionado: " + incidentText);
-        closePopup();
-    }
 
     document.getElementById('incident-form').addEventListener('submit', function(event) {
         const action = document.activeElement.getAttribute('value');  // Identifica el botón presionado
@@ -101,7 +110,7 @@
 
         const formData = new FormData(this);
 
-        fetch("{% url 'incidents:edit_incident' organizacion_id=organizacion_id pk=incident.id %}", {
+        fetch("{% url 'incidents:edit_incident' slug=slug pk=incident.id %}", {
             method: "POST",
             body: formData,
             headers: {

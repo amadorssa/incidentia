@@ -1,13 +1,11 @@
-{% extends 'base.html' %}
-
 {% block content %}
-  <h2>Perfil de {{ usuario.nombre }} {{ usuario.apellido }}</h2>
+  <h1>Editar perfil</h1>
 
   <!-- Mostrar la imagen del perfil arriba -->
   {% if usuario.foto_perfil %}
-  <img src="/cuentas{{ usuario.foto_perfil.url }}" target="_blank">
+  <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" target="_blank">
   {% else %}
-  <img src="/cuentas/media/default_pfp.jpg" target="_blank">
+  <img src="/media/default_pfp.jpg" alt="Foto de perfil por defecto" target="_blank">
   {% endif %}
 
   <!-- Mostrar errores del formulario si hay -->
@@ -57,7 +55,7 @@
     <!-- Contenedor para los botones -->
     <div style="display: flex; justify-content: space-between; margin-top: 20px;">
         <button type="submit" style="padding: 10px; background-color: lightgray;">Actualizar Perfil</button>
-        <a href="{% url 'cerrar_sesion' %}" class="btn" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Cerrar Sesión</a>
+        <a href="{% url 'sign_out' %}" class="btn" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Cerrar Sesión</a>
     </div>
   </form>
 {% endblock %}

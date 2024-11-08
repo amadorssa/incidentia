@@ -33,10 +33,10 @@
     </style>
 </head>
 
-<a href="{% url 'perfil' %}">Inicio</a>
-<a href="{% url 'incidents:incident_table' organizacion_id=organizacion_id %}">Inicidentes</a>
-<a href="{% url 'incidents:incident_table' organizacion_id=organizacion_id %}">Reportes</a>
-<a href="{% url 'perfil' %}">Perfil</a>
+<a href="{% url 'profile' %}">Inicio</a>
+<a href="{% url 'incidents:incident_table' slug=slug %}">Inicidentes</a>
+<a href="{% url 'incidents:incident_table' slug=slug %}">Reportes</a>
+<a href="{% url 'profile' %}">Perfil</a>
 <body>
 
 <h1>Agregar incidente.</h1>

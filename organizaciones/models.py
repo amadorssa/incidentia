@@ -6,11 +6,11 @@ import random
 import string
 
 class Organizacion(models.Model):
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre = models.CharField(max_length=255, unique=True)
     correo = models.EmailField()
     codigo_acceso = models.CharField(max_length=10, unique=True, blank=True)
-    # slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True)
 
     def __str__(self):
         return self.nombre

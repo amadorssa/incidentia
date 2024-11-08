@@ -10,31 +10,33 @@ from .models import Incident
 from organizaciones.models import Organizacion
 from .forms import IncidentForm
 
-class AddIncident(LoginRequiredMixin, generic.ListView):
-    template_name = "incidents/add_incident.html"
-    context_object_name = "latest_incident_list"
+class AddIncident(LoginRequiredMixin, generic.View):
+    template_name = "add_incident.html"
 
-    def get(self, request, organizacion_id=None, *args, **kwargs):
-        # Obtener la organización actual
-        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
+    def get(self, request, slug=None, *args, **kwargs):
+        self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
         form = IncidentForm()
         return self.render_form(form)
 
-    def post(self, request, organizacion_id=None, *args, **kwargs):
-        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
+    def post(self, request, slug=None, *args, **kwargs):
+        self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
         form = IncidentForm(request.POST, request.FILES)
+
         if form.is_valid():
             incident = form.save(commit=False)
             incident.user_creator = request.user
-            incident.organizacion = self.organizacion_actual  # Asocia el incidente con la organización
+            incident.organizacion = self.organizacion_actual
             incident.save()
 
             related_incident_id = request.POST.get('related_incident')
             if related_incident_id:
-                related_incident = Incident.objects.get(id=related_incident_id)
-                incident.related_incidents.add(related_incident)
+                try:
+                    related_incident = Incident.objects.get(id=related_incident_id)
+                    incident.related_incidents.add(related_incident)
+                except Incident.DoesNotExist:
+                    print("El incidente relacionado no existe")
 
-            return redirect("incidents:add_incident", organizacion_id=self.organizacion_actual.id)
+            return redirect("incidents:add_incident", slug=self.organizacion_actual.slug)
         else:
             print(form.errors)  # Imprime los errores en la consola para depuración
         return self.render_form(form)
@@ -46,7 +48,7 @@ class AddIncident(LoginRequiredMixin, generic.ListView):
             context={
                 "form": form,
                 "latest_incident_list": self.get_queryset(),
-                "organizacion_id": self.organizacion_actual.id,
+                "slug": self.organizacion_actual.slug,
                 "incidentes_organizacion": Incident.objects.filter(organizacion=self.organizacion_actual),
             },
         )
@@ -57,23 +59,22 @@ class AddIncident(LoginRequiredMixin, generic.ListView):
             organizacion=self.organizacion_actual  # Filtra por la organización actual
         ).order_by("-pub_date")[:5]
 
-
 class DetailView(LoginRequiredMixin, generic.DetailView):
     model = Incident
-    template_name = 'incidents/detail.html'
+    template_name = 'detail.html'
     context_object_name = 'incident'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         description = context['incident'].description or ''
         context['incident'].description = mark_safe(markdown.markdown(description))
-        context['organizacion_id'] = context['incident'].organizacion.id
+        context['slug'] = context['incident'].organizacion.slug
         context['related_incidents'] = context['incident'].related_incidents.all()
         return context
 
 class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
     model = Incident
-    template_name = "incidents/edit_incident.html"
+    template_name = "edit_incident.html"
     form_class = IncidentForm
 
     def get_queryset(self):
@@ -82,8 +83,11 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
     def form_valid(self, form):
         response = super().form_valid(form)
 
-        related_incident_ids = self.request.POST.getlist('related_incidents')
-        form.instance.related_incidents.set(related_incident_ids)
+        # related_incident_ids = self.request.POST.get('related_incidents', '').split(',')
+        related_incident_ids = [id for id in self.request.POST.get('related_incidents', '').split(',') if id]
+
+        if related_incident_ids:
+            form.instance.related_incidents.set(related_incident_ids)
 
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({"message": "Changes saved successfully!"})
@@ -91,13 +95,11 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
             return response
 
     def get_success_url(self):
-        return reverse('incidents:detail', args=[self.object.pk])  # Redirige a la vista de detalle en caso de solicitud normal
+        return reverse('incidents:detail', kwargs={'slug': self.object.organizacion.slug, 'pk': self.object.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        organizacion_id = self.kwargs.get('organizacion_id')
-        context['organizacion_id'] = organizacion_id
-        # Obtener todos los incidentes de la misma organización excepto el actual
+        context['slug'] = self.kwargs.get('slug')
         context['incidentes_organizacion'] = Incident.objects.filter(
             organizacion=self.object.organizacion
         ).exclude(id=self.object.id)
@@ -105,13 +107,13 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
 
 class IncidentTableView(LoginRequiredMixin, generic.ListView):
     model = Incident
-    template_name = "incidents/table.html"
+    template_name = "table.html"
     context_object_name = "incidents"
-    paginate_by = 10  # Implementamos paginación para mejorar la usabilidad
+    paginate_by = 10
 
-    def get(self, request, organizacion_id=None, *args, **kwargs):
+    def get(self, request, slug=None, *args, **kwargs):
         # Obtener la organización actual
-        self.organizacion_actual = get_object_or_404(Organizacion, id=organizacion_id)
+        self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -139,8 +141,8 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # organizacion_id = self.kwargs.get("organizacion_id")
-        context["organizacion_id"] = self.organizacion_actual.id
+        # slug = self.kwargs.get("slug")
+        context["slug"] = self.organizacion_actual.slug
         
          # Obtenemos la lista de usuarios que han creado incidentes en esta organización
         user_creators = (

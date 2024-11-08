@@ -14,16 +14,21 @@
 <p>Prioridad: {{ incident.get_prioridad_display }}</p>
 <p>Categoría: {{ incident.get_category_display }}</p>
 
-{% if related_incident %}
+{% if related_incidents %}
     <div class="subordinate-info">
-        <p><strong>Subordinado a:</strong> 
-            <a href="{% url 'incidents:detail' related_incident.pk %}">
-                {{ related_incident.incident_text }}
-            </a>
-        </p>
+        <p><strong>Incidentes relacionados:</strong></p>
+        <ul>
+            {% for related in related_incidents %}
+                <li>
+                    <a href="{% url 'incidents:detail' slug=slug pk=related.pk %}">
+                        {{ related.incident_text }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 {% else %}
-    <p>No hay incidente subordinado.</p>
+    <p>No hay incidentes relacionados.</p>
 {% endif %}
 
 {% if incident.attachment %}
@@ -31,10 +36,10 @@
 {% endif %}
 
 <!-- Enlace para editar el incidente -->
-<a href="{% url 'incidents:edit_incident' organizacion_id=organizacion_id pk=incident.id %}">Editar incidente</a>
+<a href="{% url 'incidents:edit_incident' slug=slug pk=incident.id %}">Editar incidente</a>
 
 <!-- Enlace para volver a la lista de incidentes -->
-<a href="{% url 'incidents:index' organizacion_id=organizacion_id %}">Regresar a la lista de incidentes</a>
+<a href="{% url 'incidents:incident_table' slug=slug %}">Regresar a la lista de incidentes</a>
 
 <!-- Ver ultima fecha de modificación -->
 <p>Última modificación: {{ incident.last_modified }}</p>

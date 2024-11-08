@@ -21,11 +21,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("incidents/", include("incidents.urls")),
+    path('', include("incidents.urls")),
     #path('markdownx/', include('markdownx.urls')),
-    path('cuentas/', include('cuentas.urls')),  # Asegúrate de incluir tu aplicación aquí
+    path('', include('cuentas.urls')),  # Asegúrate de incluir tu aplicación aquí
     path('admin/', admin.site.urls),
-    path("organizaciones/", include("organizaciones.urls")),
+    path('', include("organizaciones.urls")),
 ]
 
 if settings.DEBUG:
