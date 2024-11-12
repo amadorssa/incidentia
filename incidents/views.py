@@ -1,4 +1,4 @@
-from django.http import JsonResponse  
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import generic
 from django.urls import reverse
@@ -7,8 +7,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 import markdown
 from django.utils.safestring import mark_safe
 from .models import Incident
-from organizaciones.models import Organizacion
+from .models import Incident, Organizacion
 from .forms import IncidentForm
+import csv
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib import messages
 
 class AddIncident(LoginRequiredMixin, generic.View):
     template_name = "add_incident.html"
@@ -109,7 +112,6 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
     model = Incident
     template_name = "table.html"
     context_object_name = "incidents"
-    paginate_by = 10
 
     def get(self, request, slug=None, *args, **kwargs):
         # Obtener la organización actual
@@ -152,5 +154,59 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
             .exclude
             (user_creator__isnull=True)
         )
+
+        incidents = self.get_queryset()
+        paginator = Paginator(incidents, 10)
+        page = self.request.GET.get('page')
+
+        #Intenta paginar los incidentes si son mas de 10
+            #Muestra la primer pagina si no es un entero
+            #Muestra la ultima pagina si esta fuera de rango
+        try:
+            paginated_incidents = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_incidents = paginator.page(1) 
+        except EmptyPage:
+            paginated_incidents = paginator.page(paginator.num_pages)
+
+        context['incidents'] = paginated_incidents
         context['user_creators'] = user_creators
         return context
+
+def delete_incident(request, slug, pk):
+    """Vista para permitir la eliminacion de un incidente de la base de datos"""
+    organizacion = get_object_or_404(Organizacion, slug=slug)
+    incident = get_object_or_404(Incident, pk=pk, organizacion=organizacion)
+
+    incident.delete()
+    messages.success(request, "Incidente borrado satisfactoriamente.")
+    page = request.GET.get('page', 1)
+    return redirect(f"{reverse('incidents:incident_table', args=[slug])}?page={page}")
+
+def export_incidents_csv(request, slug):
+    """Vista para permitir descargar la tabla filtrada"""
+    organizacion = get_object_or_404(Organizacion, slug=slug)
+    query = request.GET.get('q')
+    user_creator = request.GET.get('user_creator')
+
+    #Obtener los incidentes que se exportaran con o sin filtros
+    incidents = Incident.objects.filter(
+            organizacion=organizacion,
+            incident_text__icontains=query,
+    ).order_by("-pub_date")
+        
+    if user_creator:
+        incidents = incidents.filter(user_creator=user_creator)
+
+    #Crear el archivo CSV 
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="tabla_filtrada.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Incidente', 'Usuario', 'Descripcion', 'Fecha Inicio', 'Fecha Vencimiento', 'Fecha Publicacion']) #Nombre de columnas
+
+    #Llenar response con los incidentes
+    for incident in incidents:
+        writer.writerow([incident.id, incident.incident_text, str(incident.user_creator), incident.description, incident.start_date, incident.due_date, incident.pub_date])
+
+    return response

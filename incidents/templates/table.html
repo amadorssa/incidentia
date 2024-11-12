@@ -22,6 +22,13 @@
         <button type="submit">Buscar</button>
     </form>
 
+    <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+        <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
+        <button type="submit">
+            CSV
+        </button>
+    </form>
     <table border="1">
         <thead>
             <tr>
@@ -56,6 +63,14 @@
                 <td style="text-align: center;">{{ incident.start_date|date:"d/m/Y" }}</td>
                 <td style="text-align: center;">{{ incident.due_date|date:"d/m/Y" }}</td>
                 <td style="text-align: center;">{{ incident.pub_date|date:"d/m/Y" }}</td>
+                <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>
+                <td style="text-align: center;"><form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" onclick="return confirm('Quieres eliminar este incidente?');">
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
@@ -70,5 +85,18 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="paginacion">
+        {% if incidents.has_previous %}
+            <a href="?page=1">&laquo; primera</a>
+            <a href="?page={{ incidents.previous_page_number }}"> anterior</a>
+        {% endif %}
+
+        <span>Pagina {{ incidents.number }} de {{ incidents.paginator.num_pages }}</span>
+
+        {% if incidents.has_next %}
+            <a href="?page={{ incidents.next_page_number }}"> siguiente</a>
+            <a href="?page={{ incidents.paginator.num_pages }}"> ultima &raquo</a>
+        {% endif %}
+    </div>
 </body>
 </html>
