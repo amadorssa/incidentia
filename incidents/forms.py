@@ -6,10 +6,12 @@ from django.utils import timezone
 class IncidentForm(forms.ModelForm):
     class Meta:
         model = Incident
-        fields = ['incident_text', 'user_creator', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date']  
+        # Creador de incidente se autoasigna y no se debe cambiar
+        #fields = ['incident_text', 'user_creator', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date']
+        fields = ['incident_text', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date']  
         labels = {
             'incident_text': 'Nombre',
-            'user_creator': 'Creador',
+            #'user_creator': 'Creador',
             # 'assign': 'Asignar a',
             'description': 'Descripción',
             'start_date': 'Fecha de inicio',

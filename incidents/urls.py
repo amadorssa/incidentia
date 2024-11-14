@@ -18,7 +18,8 @@ urlpatterns = [
     # Muestra una tabla con los incidentes de una organización específica
     path('<slug:slug>/incident/list/', views.IncidentTableView.as_view(), name='incident_table'),
     path('<slug:slug>/incident/<int:pk>/delete/', views.delete_incident, name='delete-incident'),
-    path('<slug:slug>/incident/export/', views.export_incidents_csv, name='export_incidents_csv')
+    path('<slug:slug>/incident/export/', views.export_incidents_csv, name='export_incidents_csv'),
+    path('<slug:slug>/incident/<int:pk>/PDF', views.generate_pdf, name='generate-pdf')
 ]
 
 if settings.DEBUG:

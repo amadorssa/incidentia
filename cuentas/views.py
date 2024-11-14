@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages 
-from .forms import RegistroFormulario, PerfilFormulario
+from .forms import RegistroFormulario, PerfilFormulario, CambiarPassFormulario
 from .models import Usuario, UsuarioManager
 
 def sign_up(request):
@@ -70,6 +70,23 @@ def edit_profile(request):
 def profile(request):
     usuario = request.user
     return render(request, 'profile.html', {'usuario': usuario})
+
+@login_required
+def change_pass(request):
+    if request.method == 'POST':
+        formulario = CambiarPassFormulario(request.user, request.POST)
+
+        if formulario.is_valid():
+            new_pass = formulario.cleaned_data['new_pass']
+            request.user.set_password(new_pass)
+            request.user.save()
+            # Mantener sesion iniciada despues de cambio contrasena
+            update_session_auth_hash(request, request.user)
+            messages.success(request, "Contraseña cambiada satisfactoriamente.")
+            return redirect('profile')
+    else:
+        formulario = CambiarPassFormulario(request.user)
+    return render(request, 'change_pass.html', {'formulario': formulario})
 
 
 

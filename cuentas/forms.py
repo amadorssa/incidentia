@@ -1,5 +1,6 @@
 from django import forms
 from .models import Usuario
+from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
 class RegistroFormulario(forms.ModelForm):
@@ -68,3 +69,42 @@ class PerfilFormulario(forms.ModelForm):
 
         return foto
 
+class CambiarPassFormulario(forms.Form):
+    old_pass = forms.CharField(
+        widget=forms.PasswordInput,  # Esto oculta la contraseña
+        label="Antigua Contraseña"
+    )
+
+    new_pass = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Nueva Contraseña",
+        validators=[password_validation.validate_password]
+    )
+
+    confirm_new_pass = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Confirma Nueva Contraseña"
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    # Verificar que la contrasena anterior sea la correcta
+    def clean_old_pass(self):
+        old_pass = self.cleaned_data.get('old_pass')
+
+        if not self.user.check_password(old_pass):
+            raise ValidationError("Contraseña Incorrecta.")
+        return old_pass
+    
+    # Verificar que ambas contrasenas nuevas sean iguales y limpiar
+    def clean(self):
+        cleaned_data = super().clean()
+        new_pass = cleaned_data.get('new_pass')
+        confirm_new_pass = cleaned_data.get('confirm_new_pass')
+        
+        if new_pass and confirm_new_pass and new_pass != confirm_new_pass:
+            raise ValidationError("Nuevas Contraseñas No Son Iguales.")
+
+        return cleaned_data

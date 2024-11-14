@@ -35,11 +35,17 @@
     <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
 {% endif %}
 
+
 <!-- Enlace para editar el incidente -->
+{% if is_admin or user == incident.user_creator %}
 <a href="{% url 'incidents:edit_incident' slug=slug pk=incident.id %}">Editar incidente</a>
+{% endif %}
 
 <!-- Enlace para volver a la lista de incidentes -->
 <a href="{% url 'incidents:incident_table' slug=slug %}">Regresar a la lista de incidentes</a>
+
+<!-- Boton para descargar detalle de incidente en PDF -->
+<a href="{% url 'incidents:generate-pdf' slug=slug pk=incident.id %}">PDF</a>
 
 <!-- Ver ultima fecha de modificación -->
 <p>Última modificación: {{ incident.last_modified }}</p>

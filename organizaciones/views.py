@@ -3,6 +3,7 @@ from .models import Organizacion, MiembroOrganizacion
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 @login_required
 def create_organization(request):
@@ -11,7 +12,7 @@ def create_organization(request):
         correo = request.POST.get('correo')
         organizacion = Organizacion.objects.create(nombre=nombre, correo=correo)
         MiembroOrganizacion.objects.create(usuario=request.user, organizacion=organizacion, rol=MiembroOrganizacion.ROL_ADMINISTRADOR)
-        return redirect('profile')
+        return redirect('my_organizations')
     return render(request, 'create_organization.html')
 
 @login_required
@@ -24,7 +25,7 @@ def join_organization(request):
             messages.success(request, "Te has unido a la organización.")
         else:
             messages.warning(request, "Ya eres miembro de esta organización.")
-        return redirect('profile')
+        return redirect('my_organizations')
     return render(request, 'join_organization.html')
 
 @login_required
@@ -34,11 +35,22 @@ def my_organizations(request):
     return render(request, 'my_organizations.html', {'organizaciones': organizaciones})
 
 @login_required
-# def ver_organizacion(request, organizacion_id):
 def organization_detail(request, slug):
-    # organizacion = get_object_or_404(Organizacion, id=organizacion_id)
     organizacion = get_object_or_404(Organizacion, slug=slug)
+    user_member = organizacion.miembros.filter(usuario=request.user).first()
     if not organizacion.miembros.filter(usuario=request.user).exists():
         return redirect('my_organizations')
+    # Checar si usuario es admin para mostrar boton de eliminado.
+    is_admin = user_member.rol == MiembroOrganizacion.ROL_ADMINISTRADOR
     miembros = organizacion.miembros.all()
-    return render(request, 'organization_detail.html', {'organizacion': organizacion, 'miembros': miembros})
+    return render(request, 'organization_detail.html', {'organizacion': organizacion, 'miembros': miembros, 'is_admin': is_admin})
+
+@login_required
+def delete_user(request, slug, usuario_id):
+    """Vista para permitir la eliminacion de un usuario de la organizacion"""
+    organizacion = get_object_or_404(Organizacion, slug=slug)
+    miembro = get_object_or_404(MiembroOrganizacion, usuario_id=usuario_id, organizacion=organizacion)
+    miembro.delete()
+    messages.success(request, "Usuario borrado satisfactoriamente.")
+    return redirect(f"{reverse('organization_detail', args=[slug])}")
+    

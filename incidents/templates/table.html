@@ -14,14 +14,14 @@
         <select name="user_creator">
             <option value="">-- Filtrar por Usuario --</option>
             {% for user in user_creators %}
-            <option value="{{ user }}" {% if request.GET.user_creator == user %}selected{% endif %}>
+            <option value="{{ user.id }}" {% if request.GET.user_creator == user.id|stringformat:"s" %}selected{% endif %}>
                 {{ user|default:"Anónimo"}}
             </option>
             {% endfor %}
         </select>
         <button type="submit">Buscar</button>
     </form>
-
+    {% if is_admin %}
     <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">
         <input type="hidden" name="q" value="{{ request.GET.q }}">
         <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
@@ -29,28 +29,31 @@
             CSV
         </button>
     </form>
+    {% endif %}
     <table border="1">
         <thead>
             <tr>
                 <th style="text-align: center;">ID</th>
                 <th style="text-align: center;">Incidente</th>
                 <th style="text-align: center;">Usuario</th>
-                <th style="text-align: center;">Descripcion</th>
+                <th style="text-align: center;">Prioridad</th>
+                <th style="text-align: center;">Categoría</th>
                 <th style="text-align: center;">
-                    Fecha de inicio
+                    Inicio
                     <a href="?ordering=start_date">↑</a>
                     <a href="?ordering=-start_date">↓</a>
                 </th>
                 <th style="text-align: center;">
-                Fecha de vencimiento
+                Vencimiento
                 <a href="?ordering=due_date">↑</a>
                 <a href="?ordering=-due_date">↓</a>
                 </th>
                 <th style="text-align: center;">
-                    Fecha Publicacion
+                    Publicacion
                 <a href="?ordering=pub_date">↑</a>
                 <a href="?ordering=-pub_date">↓</a>
                 </th>
+                <th>Estado</th>
             </tr>
         </thead>
         <tbody>
@@ -59,10 +62,13 @@
                 <td style="text-align: center;">{{ incident.id }}</td> 
                 <td style="text-align: center;"><a href="{% url 'incidents:detail' slug=slug pk=incident.pk %}">{{ incident.incident_text }}</a></td>
                 <td style="text-align: center;">{{ incident.user_creator|default:"Anónimo" }}</td>
-                <td style="text-align: center;">{{ incident.description|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
-                <td style="text-align: center;">{{ incident.start_date|date:"d/m/Y" }}</td>
-                <td style="text-align: center;">{{ incident.due_date|date:"d/m/Y" }}</td>
-                <td style="text-align: center;">{{ incident.pub_date|date:"d/m/Y" }}</td>
+                <td style="text-align: center;">{{ incident.prioridad|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
+                <td style="text-align: center;">{{ incident.category|default:"NA" }}</td>
+                <td style="text-align: center;">{{ incident.start_date|date:"d/m" }}</td>
+                <td style="text-align: center;">{{ incident.due_date|date:"d/m" }}</td>
+                <td style="text-align: center;">{{ incident.pub_date|date:"d/m" }}</td>
+                <td style="text-align: center;">ToDo</td>
+                {% if is_admin or user == incident.user_creator %}
                 <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>
                 <td style="text-align: center;"><form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
                                                     {% csrf_token %}
@@ -71,6 +77,7 @@
                                                     </button>
                                                 </form>
                 </td>
+                {% endif %}
             </tr>
             {% empty %}
             <tr>

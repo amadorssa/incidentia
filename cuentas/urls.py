@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import sign_up, sign_in, profile, sign_out, edit_profile
+from .views import sign_up, sign_in, profile, sign_out, edit_profile, change_pass
 
 urlpatterns = [
     path('signup/', sign_up, name='sign_up'),
@@ -9,6 +9,7 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('logout/', sign_out, name='sign_out'),
     path('edit_profile/', edit_profile, name='edit_profile'),
+    path('change_pass/', change_pass, name='change_pass')
 ]
 
 if settings.DEBUG:
