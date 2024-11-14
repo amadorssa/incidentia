@@ -127,9 +127,9 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
             incident_text__icontains=query,
         ).order_by(ordering)
         
-        if not self.request.user.is_superuser:
-            # Si no es superusuario, mostramos solo los incidentes del usuario
-            incidents = incidents.filter(user_creator=self.request.user)
+        #if not self.request.user.is_superuser:
+        #    # Si no es superusuario, mostramos solo los incidentes del usuario
+        #    incidents = incidents.filter(user_creator=self.request.user)
 
         if user_creator:
             # Si se especifica, filtramos por creador de usuario
