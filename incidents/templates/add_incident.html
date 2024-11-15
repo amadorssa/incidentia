@@ -42,7 +42,44 @@
 <h1>Agregar incidente.</h1>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}  <!-- Ahora incluirá los campos de fecha de inicio y vencimiento -->
+
+    <label for="{{ form.incident_text.id_for_label }}">Nombre</label>
+    {{ form.incident_text }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+
+    {% if miembro_actual.rol == 'ADMINISTRADOR' %}
+        <label for="{{ form.user_creator.id_for_label }}">Creador</label>
+        {{ form.user_creator }}
+        <br><br>
+    {% else %}
+        {{ form.user_creator.as_hidden }}
+    {% endif %}
+ 
+    <label for="{{ form.description.id_for_label }}">Descripción</label>
+    {{ form.description }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+
+    <label for="{{ form.prioridad.id_for_label }}">Prioridad</label>
+    {{ form.prioridad }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+
+    <label for="{{ form.category.id_for_label }}">Categoría</label>
+    {{ form.category }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+ 
+    <label for="{{ form.attachment.id_for_label }}">Adjunto</label>
+    {{ form.attachment }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+
+    <label for="{{ form.start_date.id_for_label }}">Fecha de inicio</label>
+    {{ form.start_date }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+
+    <label for="{{ form.due_date.id_for_label }}">Fecha de vencimiento</label>
+    {{ form.due_date }}  <!-- Muestra solo el campo "incident_text" -->
+    <br><br>
+
+
     <input type="hidden" id="related-incident-id" name="related_incident">
 
     <button type="button" onclick="openPopup()">Subordinar incidente</button>
@@ -62,6 +99,7 @@
     </ul>
     <button type="button" onclick="closePopup()">Cerrar</button>
 </div>
+
 
 <script>
     function openPopup() {
