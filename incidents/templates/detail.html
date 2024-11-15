@@ -13,6 +13,7 @@
 <p>Publicado en: {{ incident.pub_date }}</p>
 <p>Prioridad: {{ incident.get_prioridad_display }}</p>
 <p>Categoría: {{ incident.get_category_display }}</p>
+<p>Estado: {{ incident.get_estado_display }}</p>
 
 {% if related_incidents %}
     <div class="subordinate-info">
@@ -43,5 +44,3 @@
 
 <!-- Ver ultima fecha de modificación -->
 <p>Última modificación: {{ incident.last_modified }}</p>
-
-

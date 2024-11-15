@@ -1,6 +1,7 @@
 from django.http import JsonResponse  
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import generic
+from django.db.models import Count
 from django.urls import reverse
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -120,6 +121,8 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         query = self.request.GET.get("q", "")
         ordering = self.request.GET.get("ordering", "-pub_date")
         user_creator = self.request.GET.get("user_creator")
+        estado = self.request.GET.get("estado")
+        category = self.request.GET.get("category")
         
         # Filtramos por organización y texto de búsqueda
         incidents = Incident.objects.filter(
@@ -134,6 +137,14 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         if user_creator:
             # Si se especifica, filtramos por creador de usuario
             incidents = incidents.filter(user_creator=user_creator)
+        
+        if estado:
+            # Filtrar por estado si se especifica
+            incidents = incidents.filter(estado=estado)
+
+        if category:
+            # Filtrar por categoría si se especifica
+            incidents = incidents.filter(category=category)
 
         incidents = incidents.select_related('user_creator', 'organizacion')
 
@@ -143,6 +154,24 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         # slug = self.kwargs.get("slug")
         context["slug"] = self.organizacion_actual.slug
+
+        # Obtener el conteo de incidentes por estado
+        incident_counts = Incident.objects.filter(organizacion=self.organizacion_actual).values('estado').annotate(total=Count('estado'))
+        
+        # Crear un diccionario para los estados con el conteo correspondiente, con valor 0 si no hay incidentes
+        estados_dict = {estado[0]: 0 for estado in Incident.ESTADO_CHOICES}
+        for count in incident_counts:
+            estado = count['estado']
+            total = count['total']
+            estados_dict[estado] = total
+
+        # Pasar los conteos al contexto
+        context['incident_counts'] = estados_dict
+
+        # Calcular el total de incidentes
+        total_incidentes = sum(estados_dict.values())
+        context['total_incidentes'] = total_incidentes
+
         
          # Obtenemos la lista de usuarios que han creado incidentes en esta organización
         user_creators = (
@@ -153,4 +182,11 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
             (user_creator__isnull=True)
         )
         context['user_creators'] = user_creators
+
+        # Opciones de estado para el filtro
+        context['estados'] = Incident.ESTADO_CHOICES
+        
+        # Pasa las categorías al contexto
+        context['categories'] = Incident.CATEGORY_CHOICES
+
         return context
