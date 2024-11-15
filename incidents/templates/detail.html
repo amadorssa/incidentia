@@ -14,6 +14,7 @@
 <p>Prioridad: {{ incident.get_prioridad_display }}</p>
 <p>Categoría: {{ incident.get_category_display }}</p>
 <p>Estado: {{ incident.get_estado_display }}</p>
+<p>Creado por: {{ incident.user_creator|default:"Anónimo" }}</p> <!-- Pruebas por incidente mostrandose fuera de la tabla-->
 
 {% if related_incidents %}
     <div class="subordinate-info">

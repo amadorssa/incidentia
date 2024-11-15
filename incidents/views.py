@@ -183,6 +183,7 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         ).order_by(ordering)
 
         if user_creator:
+            # Filtrar por creador si se especifica
             incidents = incidents.filter(user_creator=user_creator)
         
         if estado:
@@ -288,13 +289,13 @@ def export_incidents_csv(request, slug):
     response['Content-Disposition'] = 'attachment; filename="tabla_filtrada.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Incidente', 'Usuario', 'Descripcion', 'Prioridad', 'Categoría',
+    writer.writerow(['ID', 'Incidente', 'Usuario', 'Descripcion', 'Prioridad', 'Categoría', 'Estado',
                      'Fecha Inicio', 'Fecha Vencimiento', 'Fecha Publicacion']) #Nombre de columnas
 
     #Llenar response con los incidentes
     for incident in incidents:
         writer.writerow([incident.id, incident.incident_text, str(incident.user_creator),
-                         incident.description, incident.prioridad, incident.category, incident.start_date,
+                         incident.description, incident.prioridad, incident.category, incident.estado, incident.start_date,
                          incident.due_date, incident.pub_date])
 
     return response
@@ -314,7 +315,7 @@ def generate_pdf(request, slug, pk):
             "Fecha Publicación": incident.pub_date, "Prioridad": incident.prioridad, "Categoria": incident.category,
             "Incidentes Relacionados": [f'{related.incident_text}'
                                         for related in incident.related_incidents.all()] if incident.related_incidents.exists() else "Ninguno",
-            "Ultima Modificación": incident.last_modified, "Archivo Adjunto": (f'<a href="{incident.attachment.url}" download>Archivo</a>' if incident.attachment else "Ninguno")}
+            "Ultima Modificación": incident.last_modified, "Estado": incident.estado}
 
     # Crear el canvas
     p = canvas.Canvas(response, pagesize=letter)

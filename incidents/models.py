@@ -32,7 +32,7 @@ class Incident(models.Model):
 
     
 
-    incident_text = models.CharField(max_length=200, null=True, blank=True)
+    incident_text = models.CharField(max_length=200, default='')
     organizacion = models.ForeignKey(Organizacion, on_delete=models.CASCADE, related_name="incidents", null=True, blank=True)
     # assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     user_creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
