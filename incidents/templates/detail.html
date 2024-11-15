@@ -36,7 +36,7 @@
     <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
 {% endif %}
 
-
+<!-- Solo Admin y Creador de incidente pueden ver boton para editar -->
 <!-- Enlace para editar el incidente -->
 {% if is_admin or user == incident.user_creator %}
 <a href="{% url 'incidents:edit_incident' slug=slug pk=incident.id %}">Editar incidente</a>

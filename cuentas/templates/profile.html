@@ -25,6 +25,10 @@
       {{ usuario.apellido }}
     </p>
 
+    <p>
+      <a href="{% url 'my_organizations' %}">Mis Organizaciones</a>
+    </p>
+
     <!-- Contenedor para los botones -->
     <div style="display: flex; justify-content: space-between; margin-top: 20px;">
       <a href="{% url 'edit_profile' %}" class="btn" style="padding: 10px; background-color: blue; color: white; text-decoration: none;">Editar perfil</a>

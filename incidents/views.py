@@ -22,7 +22,7 @@ class AddIncident(LoginRequiredMixin, generic.View):
 
     def get(self, request, slug=None, *args, **kwargs):
         self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
-        form = IncidentForm()
+        form = IncidentForm(initial={'user_creator': request.user})
         return self.render_form(form)
 
     def post(self, request, slug=None, *args, **kwargs):
@@ -49,6 +49,12 @@ class AddIncident(LoginRequiredMixin, generic.View):
         return self.render_form(form)
 
     def render_form(self, form):
+        # Obtener el rol del usuario en la organización actual
+        miembro_actual = MiembroOrganizacion.objects.filter(
+            organizacion=self.organizacion_actual, 
+            usuario=self.request.user
+        ).first()
+        
         return render(
             request=self.request,
             template_name=self.template_name,
@@ -57,6 +63,7 @@ class AddIncident(LoginRequiredMixin, generic.View):
                 "latest_incident_list": self.get_queryset(),
                 "slug": self.organizacion_actual.slug,
                 "incidentes_organizacion": Incident.objects.filter(organizacion=self.organizacion_actual),
+                "miembro_actual": miembro_actual,
             },
         )
 
@@ -88,7 +95,10 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
         context['incident'].description = mark_safe(markdown.markdown(description))
         context['slug'] = context['incident'].organizacion.slug
         context['related_incidents'] = context['incident'].related_incidents.all()
+        # Obtener el rol del usuario en la organización del incidente y si es admin para privilegios
         context["is_admin"] = self.is_admin
+        context['miembro_actual'] = self.user_member
+
         return context
 
 class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
@@ -132,6 +142,14 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
         context['incidentes_organizacion'] = Incident.objects.filter(
             organizacion=self.object.organizacion
         ).exclude(id=self.object.id)
+        
+        # Obtener el rol del usuario en la organización del incidente
+        miembro_actual = MiembroOrganizacion.objects.filter(
+            organizacion=self.object.organizacion,
+            usuario=self.request.user
+        ).first()
+        context['miembro_actual'] = miembro_actual
+
         return context
 
 class IncidentTableView(LoginRequiredMixin, generic.ListView):
@@ -142,11 +160,12 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
     def get(self, request, slug=None, *args, **kwargs):
         # Obtener la organización actual
         self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
-        # Checa si el usuario es admin de organizacion
+        # Guarda al usuario actual para buscar su rol
         self.user_member = MiembroOrganizacion.objects.filter(
             organizacion = self.organizacion_actual,
             usuario = request.user
         ).first()
+        # Checa si el usuario actual es admin para privilegios
         self.is_admin = self.user_member and self.user_member.rol == MiembroOrganizacion.ROL_ADMINISTRADOR
         return super().get(request, *args, **kwargs)
 
@@ -162,20 +181,6 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
             organizacion=self.organizacion_actual,
             incident_text__icontains=query,
         ).order_by(ordering)
-
-        # MUESTRA TODOS LOS INCIDENTES SI SUPER USUARIO
-#       Cambio de superusuario por admin
-#        if not self.request.user.is_superuser:
-#            # Si no es superusuario, mostramos solo los incidentes del usuario
-#            incidents = incidents.filter(user_creator=self.request.user)
-
-        # MUESTRA TODOS LOS INCIDENTES SI ADMIN
-        #if not self.is_admin:
-            # Si no es admin, mostramos solo los incidentes del usuario
-        #    incidents = incidents.filter(user_creator=self.request.user)
-        #if user_creator:
-        #    # Si se especifica, filtramos por creador de usuario
-        #    incidents = incidents.filter(user_creator=user_creator)
 
         if user_creator:
             incidents = incidents.filter(user_creator=user_creator)
@@ -194,9 +199,10 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # slug = self.kwargs.get("slug")
         context["slug"] = self.organizacion_actual.slug
+        # Obtener el rol del usuario en la organización actual
         context["is_admin"] = self.is_admin
+        context['miembro_actual'] = self.user_member
 
         # Obtener el conteo de incidentes por estado
         incident_counts = Incident.objects.filter(organizacion=self.organizacion_actual).values('estado').annotate(total=Count('estado'))
@@ -223,8 +229,7 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
             Incident.objects.filter(organizacion=self.organizacion_actual)
             .values_list('user_creator', flat=True)
             .distinct()
-            .exclude
-            (user_creator__isnull=True)
+            .exclude(user_creator__isnull=True)
         )
         user_creators = User.objects.filter(id__in=user_ids)
 
