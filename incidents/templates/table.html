@@ -9,8 +9,28 @@
     <a href="{% url 'incidents:add_incident' slug=slug %}">Crear incidente</a>
     <h1>Tabla de Incidentes.</h1>
 
+    <table style="width: auto; border-collapse: collapse; margin-bottom: 10px; text-align: center;">
+        <tr>
+            <td style="background-color: #5bc0de; color: #fff; padding: 5px;">Nuevos</td>
+            <td style="background-color: #f0ad4e; color: #fff; padding: 5px;">En progreso</td>
+            <td style="background-color: #5cb85c; color: #fff; padding: 5px;">Resueltos</td>
+            <td style="background-color: #b24fd9; color: #fff; padding: 5px;">Cerrados</td>
+            <td style="background-color: #d9534f; color: #fff; padding: 5px;">Rechazados</td>
+            <td style="background-color: #000000; color: #fff; padding: 5px;">Total de Incidentes</td>
+        </tr>
+        <tr>
+            <td style="background-color: #d9edf7; padding: 5px;">{{ incident_counts.nuevo }}</td>
+            <td style="background-color: #fcf8e3; padding: 5px;">{{ incident_counts.en_progreso }}</td>
+            <td style="background-color: #dff0d8; padding: 5px;">{{ incident_counts.resuelto }}</td>
+            <td style="background-color: #f1d4ee; padding: 5px;">{{ incident_counts.cerrado }}</td>
+            <td style="background-color: #f2dede; padding: 5px;">{{ incident_counts.rechazado }}</td>
+            <td style="background-color: #a7a6a691; padding: 5px;">{{ total_incidentes }}</td>
+        </tr>
+    </table>
+
     <form action="{% url 'incidents:incident_table' slug=slug %}" method="get">
         <input name="q" type="text" placeholder="Buscar por título..." value="{{ request.GET.q|default:'' }}">
+        
         <select name="user_creator">
             <option value="">-- Filtrar por Usuario --</option>
             {% for user in user_creators %}
@@ -19,6 +39,23 @@
             </option>
             {% endfor %}
         </select>
+
+        <select name="estado">
+            <option value="">-- Filtrar por Estado --</option>
+            {% for estado_key, estado_display in estados %}
+                <option value="{{ estado_key }}" {% if request.GET.estado == estado_key %}selected{% endif %}>
+                    {{ estado_display }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="category">
+            <option value="">-- Filtrar por Categoría --</option>
+            {% for category_key, category_display in categories %}
+            <option value="{{ category_key }}" {% if request.GET.category == category_key %}selected{% endif %}>{{ category_display }}</option>
+            {% endfor %}
+        </select>
+
         <button type="submit">Buscar</button>
     </form>
     {% if is_admin %}
@@ -53,7 +90,7 @@
                 <a href="?ordering=pub_date">↑</a>
                 <a href="?ordering=-pub_date">↓</a>
                 </th>
-                <th>Estado</th>
+                <th style="text-align: center;">Estado</th>
             </tr>
         </thead>
         <tbody>
@@ -67,7 +104,7 @@
                 <td style="text-align: center;">{{ incident.start_date|date:"d/m" }}</td>
                 <td style="text-align: center;">{{ incident.due_date|date:"d/m" }}</td>
                 <td style="text-align: center;">{{ incident.pub_date|date:"d/m" }}</td>
-                <td style="text-align: center;">ToDo</td>
+                <td style="text-align: center;">{{ incident.get_estado_display|safe }}</td>
                 {% if is_admin or user == incident.user_creator %}
                 <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>
                 <td style="text-align: center;"><form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
@@ -81,7 +118,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6">
+                <td colspan="8">
                     {% if request.GET.q %}
                         No se encontraron incidentes que coincidan con "{{ request.GET.q }}".
                     {% else %}

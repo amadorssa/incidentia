@@ -8,7 +8,7 @@ class IncidentForm(forms.ModelForm):
         model = Incident
         # Creador de incidente se autoasigna y no se debe cambiar
         #fields = ['incident_text', 'user_creator', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date']
-        fields = ['incident_text', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date']  
+        fields = ['incident_text', 'description','prioridad', 'category', 'attachment', 'start_date', 'due_date', 'estado']    
         labels = {
             'incident_text': 'Nombre',
             #'user_creator': 'Creador',
@@ -19,6 +19,7 @@ class IncidentForm(forms.ModelForm):
             'attachment': 'Adjunto',
             'prioridad': 'Prioridad',
             'category': 'Categoría',
+            'estado': 'Estado',
             'related_incidents': 'Incidentes relacionados',
         }
 
@@ -26,6 +27,7 @@ class IncidentForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
             'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'estado': forms.Select(attrs={'class': 'form-control'}),
             'related_incidents': forms.SelectMultiple(attrs={'class': 'form-control'}),
 
         }

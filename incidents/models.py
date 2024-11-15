@@ -22,6 +22,15 @@ class Incident(models.Model):
         ('DEPENDENCIAS', 'Dependencias de terceros'),
         ('REFACTORIZACIÓN', 'Refactorización'),
     ]
+    ESTADO_CHOICES = [
+        ('nuevo', 'Nuevo'),
+        ('en_progreso', 'En progreso'),
+        ('resuelto', 'Resuelto'),
+        ('cerrado', 'Cerrado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
+    
 
     incident_text = models.CharField(max_length=200, null=True, blank=True)
     organizacion = models.ForeignKey(Organizacion, on_delete=models.CASCADE, related_name="incidents", null=True, blank=True)
@@ -36,6 +45,7 @@ class Incident(models.Model):
     due_date = models.DateTimeField('Fecha de vencimiento', null=True, blank=True)
     last_modified = models.DateTimeField('Última modificación', auto_now=True)
     related_incidents = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='related_to')
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='nuevo')
 
 
     def clean(self):
