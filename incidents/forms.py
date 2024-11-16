@@ -62,6 +62,3 @@ class IncidentForm(forms.ModelForm):
             raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
 
         return cleaned_data
-
-
-
