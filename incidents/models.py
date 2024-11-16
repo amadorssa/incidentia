@@ -34,7 +34,7 @@ class Incident(models.Model):
 
     incident_text = models.CharField(max_length=200, default='')
     organizacion = models.ForeignKey(Organizacion, on_delete=models.CASCADE, related_name="incidents", null=True, blank=True)
-    # assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='assigned_incidents')
     user_creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     description = models.TextField(null=True, blank=True)
@@ -51,6 +51,9 @@ class Incident(models.Model):
     def clean(self):
         if self.start_date and self.due_date and self.start_date > self.due_date:
             raise ValidationError("La fecha de inicio no puede ser posterior a la fecha de vencimiento.")
+        
+        if self.assigned_to and self.organizacion and self.assigned_to not in self.organizacion.miembros.values_list('usuario', flat=True):
+            raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
 
     def __str__(self):
         return f"{self.incident_text or 'Sin título'} (by {self.user_creator} on {self.pub_date.strftime('%Y-%m-%d')})"
