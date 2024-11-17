@@ -63,8 +63,7 @@ class IncidentForm(forms.ModelForm):
 
        # Validar que el usuario asignado pertenezca a la organización
         if assigned_to and organizacion:
-            miembros_organizacion = organizacion.miembros.values_list('usuario', flat=True)
-            if assigned_to.id not in miembros_organizacion:
+            if assigned_to.organizacion != organizacion:
                 raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
-            
+   
         return cleaned_data

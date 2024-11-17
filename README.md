@@ -52,7 +52,7 @@ El proyecto está organizado en los siguientes directorios y archivos principale
 
 ## Uso
 
-Una vez que el servidor esté en funcionamiento, dirigete a `http://127.0.0.1:8000` en tu navegador para acceder a la aplicación y comenzar a gestionar incidentes.
+Una vez que el servidor esté en funcionamiento, dirigete a `http://127.0.0.1:8000/login` en tu navegador para acceder a la aplicación y comenzar a gestionar incidentes.
 
 ## Contribución
 

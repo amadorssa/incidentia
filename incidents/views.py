@@ -122,11 +122,19 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
 
         admin_incidents = Incident.objects.filter(organizacion__in=admin_organizations)
         return creator_incidents | admin_incidents
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        incident = self.get_object()
+        # Pasa el usuario y la organización actual al formulario
+        kwargs['usuario'] = self.request.user
+        kwargs['organizacion'] = incident.organizacion
+        return kwargs
 
     def form_valid(self, form):
         response = super().form_valid(form)
 
-        # related_incident_ids = self.request.POST.get('related_incidents', '').split(',')
+        # Procesar incidentes relacionados
         related_incident_ids = [id for id in self.request.POST.get('related_incidents', '').split(',') if id]
 
         if related_incident_ids:
