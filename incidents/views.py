@@ -22,12 +22,12 @@ class AddIncident(LoginRequiredMixin, generic.View):
 
     def get(self, request, slug=None, *args, **kwargs):
         self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
-        form = IncidentForm(initial={'user_creator': request.user})
+        form = IncidentForm(initial={'user_creator': request.user}, usuario=request.user, organizacion=self.organizacion_actual)
         return self.render_form(form)
 
     def post(self, request, slug=None, *args, **kwargs):
         self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
-        form = IncidentForm(request.POST, request.FILES)
+        form = IncidentForm(request.POST, request.FILES, usuario=request.user)
 
         if form.is_valid():
             incident = form.save(commit=False)
@@ -49,12 +49,15 @@ class AddIncident(LoginRequiredMixin, generic.View):
         return self.render_form(form)
 
     def render_form(self, form):
-        # Obtener el rol del usuario en la organización actual
         miembro_actual = MiembroOrganizacion.objects.filter(
-            organizacion=self.organizacion_actual, 
+            organizacion=self.organizacion_actual,
             usuario=self.request.user
         ).first()
-        
+
+        miembros_organizacion = MiembroOrganizacion.objects.filter(
+            organizacion=self.organizacion_actual
+        ).select_related('usuario')
+
         return render(
             request=self.request,
             template_name=self.template_name,
@@ -64,6 +67,7 @@ class AddIncident(LoginRequiredMixin, generic.View):
                 "slug": self.organizacion_actual.slug,
                 "incidentes_organizacion": Incident.objects.filter(organizacion=self.organizacion_actual),
                 "miembro_actual": miembro_actual,
+                "miembros_organizacion": miembros_organizacion,  # Pasa la lista de miembros
             },
         )
 

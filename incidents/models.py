@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from organizaciones.models import Organizacion
+from organizaciones.models import MiembroOrganizacion, Organizacion
 
 class Incident(models.Model):
     PRIORIDAD_CHOICES = [
@@ -32,7 +32,7 @@ class Incident(models.Model):
 
     incident_text = models.CharField(max_length=200, default='')
     organizacion = models.ForeignKey(Organizacion, on_delete=models.CASCADE, related_name="incidents", null=True, blank=True)
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='assigned_incidents')
+    assigned_to = models.ForeignKey(MiembroOrganizacion, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_incidents')
     user_creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     description = models.TextField(null=True, blank=True)

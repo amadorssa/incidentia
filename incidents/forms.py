@@ -3,6 +3,7 @@ from .models import Incident
 from django.core.exceptions import ValidationError 
 from django.utils import timezone
 from organizaciones.models import MiembroOrganizacion 
+from cuentas.models import Usuario
 
 class IncidentForm(forms.ModelForm):
     class Meta:
@@ -35,16 +36,17 @@ class IncidentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         # Obtén la organización de la solicitud del usuario
         usuario = kwargs.pop('usuario', None)  # Recibe el usuario desde la vista
-        organizacion = usuario.miembros.first().organizacion if usuario else None
+        organizacion = kwargs.pop('organizacion', None)  # Recibe la organizacion desde la vista
 
         super().__init__(*args, **kwargs)
 
         if organizacion:
             # Filtra los usuarios que pertenecen a la organización para asignarlos en el campo 'assigned_to'
-            usuarios_organizacion = MiembroOrganizacion.objects.filter(organizacion=organizacion).values_list('usuario', flat=True)
-            self.fields['assigned_to'].queryset = usuarios_organizacion  # Asigna los usuarios a 'assigned_to'
+            miembros_organizacion = MiembroOrganizacion.objects.filter(organizacion=organizacion)
+            self.fields['assigned_to'].queryset = miembros_organizacion # Asigna los usuarios a 'assigned_to'
         else:
-            self.fields['assigned_to'].queryset = []
+            self.fields['assigned_to'].queryset = MiembroOrganizacion.objects.none()
+
 
     def clean(self):  # Validaciones
         cleaned_data = super().clean()
@@ -52,13 +54,17 @@ class IncidentForm(forms.ModelForm):
         due_date = cleaned_data.get("due_date")
         assigned_to = cleaned_data.get("assigned_to")
         pub_date = self.instance.pub_date if self.instance.pk else timezone.now()
+        organizacion = self.instance.organizacion if self.instance.pk else None
+
 
         # Validación de fechas
         if start_date and due_date and start_date > due_date:
             raise ValidationError("La fecha de inicio no puede ser posterior a la fecha de vencimiento.")
 
-        # Verificar que el usuario asignado pertenezca a la organización
-        if assigned_to and self.instance.organizacion and assigned_to not in self.instance.organizacion.miembros.values_list('usuario', flat=True):
-            raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
-
+       # Validar que el usuario asignado pertenezca a la organización
+        if assigned_to and organizacion:
+            miembros_organizacion = organizacion.miembros.values_list('usuario', flat=True)
+            if assigned_to.id not in miembros_organizacion:
+                raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
+            
         return cleaned_data
