@@ -13,6 +13,13 @@
 <p>Publicado en: {{ incident.pub_date }}</p>
 <p>Prioridad: {{ incident.get_prioridad_display }}</p>
 <p>Categoría: {{ incident.get_category_display }}</p>
+<p><strong>Asignado a:</strong> 
+    {% if assigned_to %}
+        {{ assigned_to.usuario.nombre }} {{ assigned_to.usuario.apellido }} ({{ assigned_to.get_rol_display }})
+    {% else %}
+        No asignado
+    {% endif %}
+</p>
 <p>Estado: {{ incident.get_estado_display }}</p>
 <p>Creado por: {{ incident.user_creator|default:"Anónimo" }}</p> <!-- Pruebas por incidente mostrandose fuera de la tabla-->
 

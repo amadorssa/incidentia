@@ -95,11 +95,14 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        incident = context['incident']
         description = context['incident'].description or ''
         context['incident'].description = mark_safe(markdown.markdown(description))
         context['slug'] = context['incident'].organizacion.slug
         context['related_incidents'] = context['incident'].related_incidents.all()
-        # Obtener el rol del usuario en la organización del incidente y si es admin para privilegios
+        # Agregar el usuario asignado al contexto
+        context['assigned_to'] = incident.assigned_to  # Esto es un objeto MiembroOrganizacion
+        # Verifica si el usuario actual es administrador
         context["is_admin"] = self.is_admin
         context['miembro_actual'] = self.user_member
 
