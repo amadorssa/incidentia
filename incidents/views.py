@@ -98,6 +98,8 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         incident = context['incident']
+        # Agregar historial al contexto
+        context['historial'] = incident.historial.all().order_by('-fecha')  # Ordenar por fecha descendente
         description = context['incident'].description or ''
         context['incident'].description = mark_safe(markdown.markdown(description))
         context['slug'] = context['incident'].organizacion.slug
@@ -138,6 +140,10 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        incident = form.save(commit=False)
+         # Asigna el usuario actual al campo `usuario_modificador`
+        incident.usuario_modificador = self.request.user
+        incident.save()
 
         # Procesar incidentes relacionados
         related_incident_ids = [id for id in self.request.POST.get('related_incidents', '').split(',') if id]
