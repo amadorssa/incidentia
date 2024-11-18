@@ -113,7 +113,25 @@
                         No asignado
                     {% endif %}
                 </td>                
-                <td style="text-align: center;">{{ incident.get_estado_display|safe }}</td>
+                <!-- <td style="text-align: center;">{{ incident.get_estado_display|safe }}</td> -->
+                <td style="text-align: center;">
+                    {% if incident.assigned_to and incident.assigned_to.usuario == request.user %}
+                    <!-- Mostrar dropdown para editar estado si el usuario tiene permiso -->
+                    <form class="update-estado-form">
+                        <input type="hidden" name="incident_id" value="{{ incident.id }}">
+                        <select name="estado" class="update-estado">
+                            {% for estado_key, estado_display in incident.ESTADO_CHOICES %}
+                            <option value="{{ estado_key }}" {% if estado_key == incident.estado %}selected{% endif %}>
+                                {{ estado_display }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% else %}
+                    <!-- Mostrar solo el estado actual si no tiene permiso -->
+                    {{ incident.get_estado_display|safe }}
+                    {% endif %}
+                </td>
                 {% if is_admin or user == incident.user_creator %}
                 <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>
                 <td style="text-align: center;"><form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
@@ -151,5 +169,37 @@
             <a href="?page={{ incidents.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"> ultima &raquo</a>
         {% endif %}
     </div>
+    <script> // Enviar cambios al servidor mediante una petición POST (usado para cambiar el estado del incidente)
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".update-estado").forEach(select => {
+                select.addEventListener("change", function () {
+                    const form = this.closest(".update-estado-form");
+                    const formData = new FormData(form);
+    
+                    fetch("", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            alert(data.message);
+                            location.reload(); // Refrescar la página para reflejar el cambio
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("Hubo un problema al actualizar el estado.");
+                    });
+                });
+            });
+        });
+    </script>
+    
 </body>
 </html>

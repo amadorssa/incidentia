@@ -1,19 +1,20 @@
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from django.urls import reverse
-from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
-import markdown
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib import messages
 from django.utils.safestring import mark_safe
+from django.utils.decorators import method_decorator
 from .models import Incident
 from organizaciones.models import Organizacion, MiembroOrganizacion
 from .forms import IncidentForm
 import csv
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib import messages
+import markdown
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
@@ -172,6 +173,30 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
     model = Incident
     template_name = "table.html"
     context_object_name = "incidents"
+
+    @method_decorator(csrf_exempt)
+    def post(self, request, *args, **kwargs):
+        # Procesa la edición del estado
+        incident_id = request.POST.get("incident_id")
+        new_estado = request.POST.get("estado")
+
+        if not incident_id or not new_estado:
+            return JsonResponse({"error": "Faltan datos."}, status=400)
+
+        try:
+            incident = Incident.objects.get(id=incident_id)
+        except Incident.DoesNotExist:
+            return JsonResponse({"error": "El incidente no existe."}, status=404)
+
+        # Verifica que el incidente esté asignado al usuario actual
+        if not incident.assigned_to or incident.assigned_to.usuario != request.user:
+            return JsonResponse({"error": "No tienes permiso para modificar este incidente."}, status=403)
+
+        # Cambia el estado
+        incident.estado = new_estado
+        incident.save()
+
+        return JsonResponse({"message": "Estado actualizado correctamente."})
 
     def get(self, request, slug=None, *args, **kwargs):
         # Obtener la organización actual
