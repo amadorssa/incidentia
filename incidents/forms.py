@@ -40,6 +40,9 @@ class IncidentForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        # Guarda la organización en el formulario para usarla en otras partes
+        self.organizacion = organizacion
+
         if organizacion:
             # Filtra los usuarios que pertenecen a la organización para asignarlos en el campo 'assigned_to'
             miembros_organizacion = MiembroOrganizacion.objects.filter(organizacion=organizacion)
@@ -48,22 +51,22 @@ class IncidentForm(forms.ModelForm):
             self.fields['assigned_to'].queryset = MiembroOrganizacion.objects.none()
 
 
-    def clean(self):  # Validaciones
+    def clean(self): #Validaciones
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
         due_date = cleaned_data.get("due_date")
         assigned_to = cleaned_data.get("assigned_to")
-        pub_date = self.instance.pub_date if self.instance.pk else timezone.now()
-        organizacion = self.instance.organizacion if self.instance.pk else None
-
+        
+        # Usa la organización guardada desde __init__
+        organizacion = self.organizacion
 
         # Validación de fechas
         if start_date and due_date and start_date > due_date:
             raise ValidationError("La fecha de inicio no puede ser posterior a la fecha de vencimiento.")
 
-       # Validar que el usuario asignado pertenezca a la organización
+        # Validar que el usuario asignado pertenezca a la organización
         if assigned_to and organizacion:
             if assigned_to.organizacion != organizacion:
                 raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
-   
+                
         return cleaned_data

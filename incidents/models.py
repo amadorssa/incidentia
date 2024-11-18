@@ -50,7 +50,10 @@ class Incident(models.Model):
         if self.start_date and self.due_date and self.start_date > self.due_date:
             raise ValidationError("La fecha de inicio no puede ser posterior a la fecha de vencimiento.")
         
-        if self.assigned_to and self.organizacion and self.assigned_to not in self.organizacion.miembros.values_list('usuario', flat=True):
+        #if self.assigned_to and self.organizacion and self.assigned_to not in self.organizacion.miembros.values_list('usuario', flat=True):
+         #   raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
+        
+        if self.assigned_to and self.organizacion and self.assigned_to.organizacion != self.organizacion:
             raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
 
     def __str__(self):

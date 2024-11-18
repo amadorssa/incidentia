@@ -27,7 +27,7 @@ class AddIncident(LoginRequiredMixin, generic.View):
 
     def post(self, request, slug=None, *args, **kwargs):
         self.organizacion_actual = get_object_or_404(Organizacion, slug=slug)
-        form = IncidentForm(request.POST, request.FILES, usuario=request.user)
+        form = IncidentForm(request.POST, request.FILES, usuario=request.user, organizacion=self.organizacion_actual)
 
         if form.is_valid():
             incident = form.save(commit=False)
@@ -35,6 +35,7 @@ class AddIncident(LoginRequiredMixin, generic.View):
             incident.organizacion = self.organizacion_actual
             incident.save()
 
+            # Procesar incidentes relacionados
             related_incident_id = request.POST.get('related_incident')
             if related_incident_id:
                 try:
@@ -101,7 +102,7 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
         context['slug'] = context['incident'].organizacion.slug
         context['related_incidents'] = context['incident'].related_incidents.all()
         # Agregar el usuario asignado al contexto
-        context['assigned_to'] = incident.assigned_to  # Esto es un objeto MiembroOrganizacion
+        context['assigned_to'] = incident.assigned_to  
         # Verifica si el usuario actual es administrador
         context["is_admin"] = self.is_admin
         context['miembro_actual'] = self.user_member
