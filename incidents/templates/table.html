@@ -91,6 +91,7 @@
                 <a href="?ordering=pub_date">↑</a>
                 <a href="?ordering=-pub_date">↓</a>
                 </th>
+                <th style="text-align: center;">Asignado a</th>
                 <th style="text-align: center;">Estado</th>
             </tr>
         </thead>
@@ -105,6 +106,13 @@
                 <td style="text-align: center;">{{ incident.start_date|date:"d/m" }}</td>
                 <td style="text-align: center;">{{ incident.due_date|date:"d/m" }}</td>
                 <td style="text-align: center;">{{ incident.pub_date|date:"d/m" }}</td>
+                <td style="text-align: center;">
+                    {% if incident.assigned_to %}
+                        {{ incident.assigned_to.usuario.nombre }} {{ incident.assigned_to.usuario.apellido }}
+                    {% else %}
+                        No asignado
+                    {% endif %}
+                </td>                
                 <td style="text-align: center;">{{ incident.get_estado_display|safe }}</td>
                 {% if is_admin or user == incident.user_creator %}
                 <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>

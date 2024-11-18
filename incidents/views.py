@@ -195,7 +195,7 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         incidents = Incident.objects.filter(
             organizacion=self.organizacion_actual,
             incident_text__icontains=query,
-        ).order_by(ordering)
+        ).select_related('user_creator', 'organizacion', 'assigned_to__usuario').order_by(ordering)
 
         if user_creator:
             # Filtrar por creador si se especifica
@@ -209,7 +209,7 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
             # Filtrar por categoría si se especifica
             incidents = incidents.filter(category=category)
 
-        incidents = incidents.select_related('user_creator', 'organizacion')
+        #incidents = incidents.select_related('user_creator', 'organizacion')
 
         return incidents
     
