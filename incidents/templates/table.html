@@ -113,7 +113,6 @@
                         No asignado
                     {% endif %}
                 </td>                
-                <!-- <td style="text-align: center;">{{ incident.get_estado_display|safe }}</td> -->
                 <td style="text-align: center;">
                     {% if incident.assigned_to and incident.assigned_to.usuario == request.user %}
                     <!-- Mostrar dropdown para editar estado si el usuario tiene permiso -->
