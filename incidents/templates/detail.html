@@ -44,6 +44,7 @@
     <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
 {% endif %}
 
+
 <!-- Solo Admin y Creador de incidente pueden ver boton para editar -->
 <!-- Enlace para editar el incidente -->
 {% if is_admin or user == incident.user_creator %}
@@ -58,3 +59,28 @@
 
 <!-- Ver ultima fecha de modificación -->
 <p>Última modificación: {{ incident.last_modified }}</p>
+
+<!-- Historial de cambios -->
+{% if historial %}
+    <ul>
+        {% for cambio in historial %}
+            <li>
+                <strong>Fecha:</strong> {{ cambio.fecha|date:"d/m/Y H:i" }}<br>
+                <strong>Usuario:</strong> 
+                {% if cambio.usuario %}
+                    {{ cambio.usuario.nombre }} {{ cambio.usuario.apellido }}
+                {% else %}
+                    Usuario desconocido
+                {% endif %}<br>
+                <strong>Campos modificados:</strong>
+                <ul>
+                    {% for campo in cambio.campos_modificados %}
+                        <li>{{ campo }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay historial de cambios para este incidente.</p>
+{% endif %}
