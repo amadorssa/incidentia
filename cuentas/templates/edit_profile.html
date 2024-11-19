@@ -55,7 +55,7 @@
     <!-- Contenedor para los botones -->
     <div style="display: flex; justify-content: space-between; margin-top: 20px;">
         <button type="submit" style="padding: 10px; background-color: lightgray;">Actualizar Perfil</button>
-        <a href="{% url 'sign_out' %}" class="btn" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Cerrar Sesión</a>
+        <a href="{% url 'accounts:sign_out' %}" class="btn" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Cerrar Sesión</a>
     </div>
   </form>
 {% endblock %}

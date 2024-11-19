@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
+<body>
 <h1>Cambiar Contraseña</h1>
     <div style="text-align: center;">
         {% if usuario.foto_perfil %}
@@ -22,5 +23,8 @@
         {{ formulario.as_p }}
     
         <button type="submit" name="action" value="save">Cambiar Contraseña</button>
+        <!-- Boton para cancelar y regresarse al perfil del usuario -->
+        <button type="button" onclick="location.href='{% url 'accounts:profile' slug=slug %}'">Cancelar</button>
     </form>
+</body>
 </html>

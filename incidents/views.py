@@ -180,6 +180,30 @@ class EditIncidentView(LoginRequiredMixin, generic.UpdateView):
 
         return context
 
+class IncidentOverviewView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organizacion = get_object_or_404(Organizacion, slug=self.kwargs['slug'])
+
+        # Obtener el conteo de incidentes por estado
+        incident_counts = Incident.objects.filter(organizacion=organizacion).values('estado').annotate(total=Count('estado'))
+        estados_dict = {estado[0]: 0 for estado in Incident.ESTADO_CHOICES}
+        for count in incident_counts:
+            estados_dict[count['estado']] = count['total']
+
+        # Obtener los últimos 5 incidentes
+        latest_incidents = Incident.objects.filter(organizacion=organizacion).order_by("-pub_date")[:5]
+
+        context['slug'] = organizacion.slug
+        context['incident_counts'] = estados_dict
+        context['total_incidentes'] = sum(estados_dict.values())
+        context['latest_incidents'] = latest_incidents
+
+        return context
+
+
 class IncidentTableView(LoginRequiredMixin, generic.ListView):
     model = Incident
     template_name = "table.html"
@@ -227,6 +251,7 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         user_creator = self.request.GET.get("user_creator")
         estado = self.request.GET.get("estado")
         category = self.request.GET.get("category")
+        prioridad = self.request.GET.get("prioridad")
         
         # Filtramos por organización y texto de búsqueda
         incidents = Incident.objects.filter(
@@ -245,6 +270,9 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         if category:
             # Filtrar por categoría si se especifica
             incidents = incidents.filter(category=category)
+
+        if prioridad:
+            incidents = incidents.filter(prioridad=prioridad)  # Aplica filtro de prioridad
 
         #incidents = incidents.select_related('user_creator', 'organizacion')
 
@@ -308,6 +336,9 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         
         # Pasa las categorías al contexto
         context['categories'] = Incident.CATEGORY_CHOICES
+
+        context['prioridades'] = Incident.PRIORIDAD_CHOICES
+
 
         return context
 

@@ -10,14 +10,15 @@
         <h1>Perfil de usuario</h1>
         <nav>
             <ul>
-                <li><a href="{% url 'sign_up' %}">Registro</a></li>
-                <li><a href="{% url 'sign_in' %}">Iniciar Sesión</a></li>
-                <li><a href="{% url 'profile' %}">Perfil</a></li>
+                <li><a href="{% url 'accounts:sign_up' %}">Registro</a></li>
+                <li><a href="{% url 'accounts:sign_in' %}">Iniciar Sesión</a></li>
+                <li><a href="{% url 'accounts:profile' slug=slug%}">Perfil</a></li>
                 <li><a href="{% url 'my_organizations' %}">Mis Organizaciones</a></li>
             </ul>
         </nav>
     </header>
     
+
     <main>
         {% block content %}
         {% endblock %}

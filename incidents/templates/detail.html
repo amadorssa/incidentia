@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
+<a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
+<!-- Enlace para volver a la lista de incidentes -->
+<a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
+<a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
+
+
 <h1>Incidente #{{ incident.id }} - {{ incident.incident_text }}</h1> <!-- Muestra el ID junto al título -->
 <p>{{ incident.description|safe }}</p>
 <p>Fecha de inicio: {{ incident.start_date|date:"d/m/Y H:i" }}</p>
@@ -45,17 +51,14 @@
 {% endif %}
 
 
+
 <!-- Solo Admin y Creador de incidente pueden ver boton para editar -->
-<!-- Enlace para editar el incidente -->
 {% if is_admin or user == incident.user_creator %}
-<a href="{% url 'incidents:edit_incident' slug=slug pk=incident.id %}">Editar incidente</a>
+<button type="button" class="button" onclick="location.href='{% url 'incidents:edit_incident' slug=slug pk=incident.id %}'">Editar</button>
 {% endif %}
 
-<!-- Enlace para volver a la lista de incidentes -->
-<a href="{% url 'incidents:incident_table' slug=slug %}">Regresar a la lista de incidentes</a>
-
-<!-- Boton para descargar detalle de incidente en PDF -->
-<a href="{% url 'incidents:generate-pdf' slug=slug pk=incident.id %}">PDF</a>
+<!-- Botón para descargar detalle de incidente en PDF -->
+<button type="button" class="button" onclick="location.href='{% url 'incidents:generate-pdf' slug=slug pk=incident.id %}'">Descargar PDF</button>
 
 <!-- Ver ultima fecha de modificación -->
 <p>Última modificación: {{ incident.last_modified }}</p>

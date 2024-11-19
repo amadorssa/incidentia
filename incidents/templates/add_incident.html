@@ -33,9 +33,9 @@
     </style>
 </head>
 
-<a href="{% url 'incidents:incident_table' slug=slug %}">Inicio</a>
+<a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
 <a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
-<a href="{% url 'profile' %}">Perfil</a>
+<a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
 <body>
 
 <h1>Agregar incidente.</h1>

@@ -26,6 +26,7 @@ class Incident(models.Model):
     ]
     ESTADO_CHOICES = [
         ('ABIERTO', 'Abierto'),
+        ('EN_PROGRESO', 'En progreso'),
         ('RESUELTO', 'Resuleto'),
         ('DESCARTADO', 'Descartado'),
     ]

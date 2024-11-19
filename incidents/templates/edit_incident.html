@@ -32,6 +32,11 @@
     </style>
 </head>
 
+<a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
+<a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
+<a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
+
+
 <h1>Edit Incident</h1>
 <form id="incident-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -66,8 +71,6 @@
     </ul>
     <button type="button" onclick="closePopup()">Cerrar</button>
 </div>
-
-<a href="{% url 'incidents:detail' slug=slug pk=incident.pk %}">Back to Incident Details</a>
 
 <script>
 
