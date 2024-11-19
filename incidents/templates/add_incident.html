@@ -33,9 +33,8 @@
     </style>
 </head>
 
-<a href="{% url 'profile' %}">Inicio</a>
-<a href="{% url 'incidents:incident_table' slug=slug %}">Inicidentes</a>
-<a href="{% url 'incidents:incident_table' slug=slug %}">Reportes</a>
+<a href="{% url 'incidents:incident_table' slug=slug %}">Inicio</a>
+<a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
 <a href="{% url 'profile' %}">Perfil</a>
 <body>
 
@@ -48,6 +47,8 @@
 
     <button type="button" onclick="openPopup()">Subordinar incidente</button>
     <button type="submit">Crear Incidente</button>
+    <button type="submit" name="add_another">Guardar y crear otro</button>
+
 </form>
 
 <div id="overlay"></div>

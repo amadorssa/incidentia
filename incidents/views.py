@@ -45,6 +45,11 @@ class AddIncident(LoginRequiredMixin, generic.View):
                 except Incident.DoesNotExist:
                     print("El incidente relacionado no existe")
 
+            # Verificar si el usuario desea crear otro incidente
+            if "create_another" in request.POST:
+                messages.success(request, "Incidente creado. Ahora puedes crear otro incidente.")
+                return redirect("incidents:add_incident", slug=self.organizacion_actual.slug)
+
             return redirect("incidents:add_incident", slug=self.organizacion_actual.slug)
         else:
             print(form.errors)  # Imprime los errores en la consola para depuración
@@ -307,7 +312,7 @@ class IncidentTableView(LoginRequiredMixin, generic.ListView):
         return context
 
 def delete_incident(request, slug, pk):
-    """Vista para permitir la eliminacion de un incidente de la base de datos"""
+    # """Vista para permitir la eliminacion de un incidente de la base de datos"""
     organizacion = get_object_or_404(Organizacion, slug=slug)
     incident = get_object_or_404(Incident, pk=pk, organizacion=organizacion)
 
@@ -317,7 +322,7 @@ def delete_incident(request, slug, pk):
     return redirect(f"{reverse('incidents:incident_table', args=[slug])}?page={page}")
 
 def export_incidents_csv(request, slug):
-    """Vista para permitir descargar la tabla filtrada"""
+    # """Vista para permitir descargar la tabla filtrada"""
     organizacion = get_object_or_404(Organizacion, slug=slug)
     query = request.GET.get('q')
     user_creator = request.GET.get('user_creator')
@@ -348,7 +353,7 @@ def export_incidents_csv(request, slug):
     return response
 
 def generate_pdf(request, slug, pk):
-    """Vista para permitir la generacion de un incidente en formato PDF"""
+    # """Vista para permitir la generacion de un incidente en formato PDF"""
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="document.pdf"'
     organizacion = get_object_or_404(Organizacion, slug=slug)

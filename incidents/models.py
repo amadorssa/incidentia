@@ -25,11 +25,9 @@ class Incident(models.Model):
         ('REFACTORIZACIÓN', 'Refactorización'),
     ]
     ESTADO_CHOICES = [
-        ('nuevo', 'Nuevo'),
-        ('en_progreso', 'En progreso'),
-        ('resuelto', 'Resuelto'),
-        ('cerrado', 'Cerrado'),
-        ('rechazado', 'Rechazado'),
+        ('ABIERTO', 'Abierto'),
+        ('RESUELTO', 'Resuleto'),
+        ('DESCARTADO', 'Descartado'),
     ]
 
     incident_text = models.CharField(max_length=200, default='')
