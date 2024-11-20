@@ -38,5 +38,6 @@ class MiembroOrganizacion(models.Model):
         unique_together = ('usuario', 'organizacion')
 
     def __str__(self):
-        return f"{self.usuario.nombre} {self.usuario.apellido} - {self.organizacion.nombre} ({self.get_rol_display()})"
+        return f"{self.usuario.nombre} {self.usuario.apellido}"
+        # return f"{self.usuario.nombre} {self.usuario.apellido} - {self.organizacion.nombre} ({self.get_rol_display()})"
 
