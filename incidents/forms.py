@@ -1,5 +1,5 @@
 from django import forms
-from .models import Incident
+from .models import Incident, Comentario
 from django.core.exceptions import ValidationError 
 from django.utils import timezone
 from organizaciones.models import MiembroOrganizacion 
@@ -70,3 +70,15 @@ class IncidentForm(forms.ModelForm):
                 raise ValidationError("El usuario asignado debe pertenecer a la organización del incidente.")
                 
         return cleaned_data
+    
+class ComentarioForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ['texto']
+        widgets = {
+            'texto': forms.Textarea(attrs={'rows': 3, 'cols': 50, 'placeholder': 'Escribe tu comentario aquí...'}),
+        }
+        labels = {
+            'texto': '',
+        }
+

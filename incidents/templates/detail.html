@@ -87,3 +87,130 @@
 {% else %}
     <p>No hay historial de cambios para este incidente.</p>
 {% endif %}
+
+<!-- Comentarios -->
+<h3>Comentarios</h3>
+<div id="comentarios-list">
+    {% for comentario in comentarios %}
+    <div id="comentario-{{ comentario.id }}" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+        <strong>{{ comentario.usuario.nombre }} {{ comentario.usuario.apellido }}</strong>
+        <small>({{ comentario.fecha_creacion|date:"d/m/Y H:i" }})</small>
+        <p class="comentario-texto">{{ comentario.texto }}</p>
+        {% if comentario.usuario == request.user %}
+        <button class="edit-comment" data-id="{{ comentario.id }}">Editar</button>
+        <button class="delete-comment" data-id="{{ comentario.id }}">Eliminar</button>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p>No hay comentarios para este incidente.</p>
+    {% endfor %}
+</div>
+
+<h3>Agregar Comentario</h3>
+<form id="add-comment-form">
+    {% csrf_token %}
+    {{ comentario_form.as_p }}
+    <button type="submit">Comentar</button>
+</form>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Agregar comentario
+        const addCommentForm = document.getElementById("add-comment-form");
+        addCommentForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const formData = new FormData(addCommentForm);
+            formData.append("action", "add_comment");
+
+            fetch("", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const comentariosList = document.getElementById("comentarios-list");
+                    const comentarioDiv = document.createElement("div");
+                    comentarioDiv.id = `comentario-${data.comentario.id}`;
+                    comentarioDiv.style.border = "1px solid #ddd";
+                    comentarioDiv.style.padding = "10px";
+                    comentarioDiv.style.marginBottom = "10px";
+                    comentarioDiv.innerHTML = `
+                        <strong>${data.comentario.usuario}</strong>
+                        <small>(${data.comentario.fecha_creacion})</small>
+                        <p class="comentario-texto">${data.comentario.texto}</p>
+                        <button class="edit-comment" data-id="${data.comentario.id}">Editar</button>
+                        <button class="delete-comment" data-id="${data.comentario.id}">Eliminar</button>
+                    `;
+                    comentariosList.prepend(comentarioDiv);
+                    addCommentForm.reset();
+                } else {
+                    alert("Error al agregar el comentario.");
+                }
+            });
+        });
+
+        // Editar comentario
+        document.addEventListener("click", function (event) {
+            if (event.target.classList.contains("edit-comment")) {
+                const comentarioId = event.target.dataset.id;
+                const comentarioDiv = document.getElementById(`comentario-${comentarioId}`);
+                const comentarioTexto = comentarioDiv.querySelector(".comentario-texto");
+
+                const nuevoTexto = prompt("Edita tu comentario:", comentarioTexto.innerText);
+                if (nuevoTexto) {
+                    const formData = new FormData();
+                    formData.append("action", "edit_comment");
+                    formData.append("comentario_id", comentarioId);
+                    formData.append("texto", nuevoTexto);
+
+                    fetch("", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            comentarioTexto.innerText = data.texto;
+                        } else {
+                            alert("Error al editar el comentario.");
+                        }
+                    });
+                }
+            }
+        });
+
+        // Eliminar comentario
+        document.addEventListener("click", function (event) {
+            if (event.target.classList.contains("delete-comment")) {
+                const comentarioId = event.target.dataset.id;
+                if (confirm("¿Seguro que quieres eliminar este comentario?")) {
+                    const formData = new FormData();
+                    formData.append("action", "delete_comment");
+                    formData.append("comentario_id", comentarioId);
+
+                    fetch("", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById(`comentario-${comentarioId}`).remove();
+                        } else {
+                            alert("Error al eliminar el comentario.");
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>

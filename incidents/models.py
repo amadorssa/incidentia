@@ -93,3 +93,15 @@ class HistorialIncidente(models.Model):
 
     def __str__(self):
         return f"Historial para incidente {self.incidente.id} por {self.usuario.nombre} {self.usuario.apellido if self.usuario else 'Desconocido'}"
+    
+class Comentario(models.Model):
+    incidente = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    texto = models.TextField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Comentario por {self.usuario.nombre} en {self.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S')}"
+    
+

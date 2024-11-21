@@ -10,9 +10,9 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.utils.decorators import method_decorator
-from .models import Incident
+from .models import Incident, Comentario
 from organizaciones.models import Organizacion, MiembroOrganizacion
-from .forms import IncidentForm
+from .forms import IncidentForm, ComentarioForm
 import csv
 import markdown
 from reportlab.lib.pagesizes import letter
@@ -99,6 +99,52 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
         ).first()
         self.is_admin = self.user_member and self.user_member.rol == MiembroOrganizacion.ROL_ADMINISTRADOR
         return super().get(request, *args, **kwargs)
+    
+    def post(self, request, slug=None, *args, **kwargs):
+        incidente = self.get_object()
+        action = request.POST.get('action')
+
+        if action == "add_comment":
+            # Agregar comentario
+            form = ComentarioForm(request.POST)
+            if form.is_valid():
+                comentario = form.save(commit=False)
+                comentario.incidente = incidente
+                comentario.usuario = request.user
+                comentario.save()
+                return JsonResponse({
+                    "success": True,
+                    "comentario": {
+                        "id": comentario.id,
+                        "texto": comentario.texto,
+                        "usuario": f"{comentario.usuario.nombre} {comentario.usuario.apellido}",
+                        "fecha_creacion": comentario.fecha_creacion.strftime("%d/%m/%Y %H:%M")
+                    }
+                })
+            return JsonResponse({"success": False, "errors": form.errors})
+
+        elif action == "edit_comment":
+            # Editar comentario
+            comentario_id = request.POST.get("comentario_id")
+            texto = request.POST.get("texto")
+            comentario = Comentario.objects.filter(id=comentario_id, usuario=request.user).first()
+            if comentario:
+                comentario.texto = texto
+                comentario.save()
+                return JsonResponse({"success": True, "texto": comentario.texto})
+            return JsonResponse({"success": False, "error": "No se pudo editar el comentario."})
+
+        elif action == "delete_comment":
+            # Eliminar comentario
+            comentario_id = request.POST.get("comentario_id")
+            comentario = Comentario.objects.filter(id=comentario_id, usuario=request.user).first()
+            if comentario:
+                comentario.delete()
+                return JsonResponse({"success": True})
+            return JsonResponse({"success": False, "error": "No se pudo eliminar el comentario."})
+
+        return JsonResponse({"success": False, "error": "Acción no válida."})
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -114,6 +160,8 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
         # Verifica si el usuario actual es administrador
         context["is_admin"] = self.is_admin
         context['miembro_actual'] = self.user_member
+        context['comentarios'] = incident.comentarios.all().order_by('-fecha_creacion')  # Ordenar por fecha descendente
+        context['comentario_form'] = ComentarioForm()
 
         return context
 
