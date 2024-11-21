@@ -7,8 +7,8 @@ from .models import Usuario, UsuarioManager
 
 def sign_up(request):
     if request.user.is_authenticated:
-        messages.info(request, "Ya has iniciado sesión.")
-        return redirect('accounts:profile')
+        logout(request)
+        return redirect('accounts:sign_in')
 
     if request.method == 'POST':
         formulario = RegistroFormulario(request.POST)
@@ -32,8 +32,8 @@ def sign_up(request):
 
 def sign_in(request):
     if request.user.is_authenticated:
-        messages.info(request, "Ya has iniciado sesión.")
-        return redirect('accounts:profile')
+        logout(request)
+        return redirect('accounts:sign_in')
 
     if request.method == 'POST':
         correo = request.POST['correo']
