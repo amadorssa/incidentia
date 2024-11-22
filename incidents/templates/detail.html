@@ -2,74 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Incidente</title>
 </head>
+<body>
+<header>
+    <nav>
+        <a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
+        <a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
+        <a href="{% url 'accounts:profile' slug=slug %}">Perfil</a>
+    </nav>
+</header>
 
-<a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
-<!-- Enlace para volver a la lista de incidentes -->
-<a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
-<a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
+<main>
+    <article>
+        <h1>Incidente #{{ incident.id }} - {{ incident.incident_text }}</h1>
+        <p>{{ incident.description|safe }}</p>
+        <p><strong>Fecha de inicio:</strong> {{ incident.start_date|date:"d/m/Y H:i" }}</p>
+        <p><strong>Fecha de vencimiento:</strong> {{ incident.due_date|date:"d/m/Y H:i" }}</p>
+        <p><strong>Publicado en:</strong> {{ incident.pub_date }}</p>
+        <p><strong>Prioridad:</strong> {{ incident.get_prioridad_display }}</p>
+        <p><strong>Categoría:</strong> {{ incident.get_category_display }}</p>
+        <p><strong>Asignado a:</strong>
+            {% if assigned_to %}
+                {{ assigned_to.usuario.nombre }} {{ assigned_to.usuario.apellido }} ({{ assigned_to.get_rol_display }})
+            {% else %}
+                No asignado
+            {% endif %}
+        </p>
+        <p><strong>Estado:</strong> {{ incident.get_estado_display }}</p>
+        <p><strong>Creado por:</strong> {{ incident.user_creator|default:"Anónimo" }}</p>
 
-
-<h1>Incidente #{{ incident.id }} - {{ incident.incident_text }}</h1> <!-- Muestra el ID junto al título -->
-<p>{{ incident.description|safe }}</p>
-<p>Fecha de inicio: {{ incident.start_date|date:"d/m/Y H:i" }}</p>
-<p>Fecha de vencimiento: {{ incident.due_date|date:"d/m/Y H:i" }}</p>
-<p>Publicado en: {{ incident.pub_date }}</p>
-<p>Prioridad: {{ incident.get_prioridad_display }}</p>
-<p>Categoría: {{ incident.get_category_display }}</p>
-<p><strong>Asignado a:</strong> 
-    {% if assigned_to %}
-        {{ assigned_to.usuario.nombre }} {{ assigned_to.usuario.apellido }} ({{ assigned_to.get_rol_display }})
-    {% else %}
-        No asignado
-    {% endif %}
-</p>
-<p>Estado: {{ incident.get_estado_display }}</p>
-<p>Creado por: {{ incident.user_creator|default:"Anónimo" }}</p> <!-- Pruebas por incidente mostrandose fuera de la tabla-->
-
-{% if related_incidents %}
-    <div class="subordinate-info">
-        <p><strong>Incidentes relacionados:</strong></p>
-        <ul>
-            {% for related in related_incidents %}
+        {% if related_incidents %}
+        <section>
+            <h2>Incidentes relacionados</h2>
+            <ul>
+                {% for related in related_incidents %}
                 <li>
-                    <a href="{% url 'incidents:detail' slug=slug pk=related.pk %}">
-                        {{ related.incident_text }}
-                    </a>
+                    <a href="{% url 'incidents:detail' slug=slug pk=related.pk %}">{{ related.incident_text }}</a>
                 </li>
-            {% endfor %}
-        </ul>
-    </div>
-{% else %}
-    <p>No hay incidentes relacionados.</p>
-{% endif %}
+                {% endfor %}
+            </ul>
+        </section>
+        {% else %}
+        <p>No hay incidentes relacionados.</p>
+        {% endif %}
 
-{% if incident.attachment %}
-    <p>Archivo adjunto: <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
-{% endif %}
+        {% if incident.attachment %}
+        <p><strong>Archivo adjunto:</strong> <a href="{{ incident.attachment.url }}" download>Descargar archivo</a></p>
+        {% endif %}
 
+        {% if is_admin or user == incident.user_creator %}
+        <button type="button" onclick="location.href='{% url 'incidents:edit_incident' slug=slug pk=incident.id %}'">Editar</button>
+        {% endif %}
+        <button type="button" onclick="location.href='{% url 'incidents:generate-pdf' slug=slug pk=incident.id %}'">Descargar PDF</button>
+        <p><strong>Última modificación:</strong> {{ incident.last_modified }}</p>
+    </article>
 
-
-<!-- Solo Admin y Creador de incidente pueden ver boton para editar -->
-{% if is_admin or user == incident.user_creator %}
-<button type="button" class="button" onclick="location.href='{% url 'incidents:edit_incident' slug=slug pk=incident.id %}'">Editar</button>
-{% endif %}
-
-<!-- Botón para descargar detalle de incidente en PDF -->
-<button type="button" class="button" onclick="location.href='{% url 'incidents:generate-pdf' slug=slug pk=incident.id %}'">Descargar PDF</button>
-
-<!-- Ver ultima fecha de modificación -->
-<p>Última modificación: {{ incident.last_modified }}</p>
-
-<!-- Historial de cambios -->
-{% if historial %}
-    <ul>
-        {% for cambio in historial %}
+    <section>
+        <h2>Historial de cambios</h2>
+        {% if historial %}
+        <ul>
+            {% for cambio in historial %}
             <li>
                 <strong>Fecha:</strong> {{ cambio.fecha|date:"d/m/Y H:i" }}<br>
-                <strong>Usuario:</strong> 
+                <strong>Usuario:</strong>
                 {% if cambio.usuario %}
                     {{ cambio.usuario.nombre }} {{ cambio.usuario.apellido }}
                 {% else %}
@@ -78,43 +76,46 @@
                 <strong>Campos modificados:</strong>
                 <ul>
                     {% for campo in cambio.campos_modificados %}
-                        <li>{{ campo }}</li>
+                    <li>{{ campo }}</li>
                     {% endfor %}
                 </ul>
             </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No hay historial de cambios para este incidente.</p>
-{% endif %}
-
-<!-- Comentarios -->
-<h3>Comentarios</h3>
-<div id="comentarios-list">
-    {% for comentario in comentarios %}
-    <div id="comentario-{{ comentario.id }}" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
-        <strong>{{ comentario.usuario.nombre }} {{ comentario.usuario.apellido }}</strong>
-        <small>({{ comentario.fecha_creacion|date:"d/m/Y H:i" }})</small>
-        <p class="comentario-texto">{{ comentario.texto }}</p>
-        {% if comentario.usuario == request.user %}
-        <button class="edit-comment" data-id="{{ comentario.id }}">Editar</button>
-        <button class="delete-comment" data-id="{{ comentario.id }}">Eliminar</button>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No hay historial de cambios para este incidente.</p>
         {% endif %}
-    </div>
-    {% empty %}
-    <p>No hay comentarios para este incidente.</p>
-    {% endfor %}
-</div>
+    </section>
 
-<h3>Agregar Comentario</h3>
-<form id="add-comment-form">
-    {% csrf_token %}
-    {{ comentario_form.as_p }}
-    <button type="submit">Comentar</button>
-</form>
+    <section>
+        <h2>Comentarios</h2>
+        <div id="comentarios-list">
+            {% for comentario in comentarios %}
+            <div id="comentario-{{ comentario.id }}" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                <strong>{{ comentario.usuario.nombre }} {{ comentario.usuario.apellido }}</strong>
+                <small>({{ comentario.fecha_creacion|date:"d/m/Y H:i" }})</small>
+                <p class="comentario-texto">{{ comentario.texto }}</p>
+                {% if comentario.usuario == request.user %}
+                <button class="edit-comment" data-id="{{ comentario.id }}">Editar</button>
+                <button class="delete-comment" data-id="{{ comentario.id }}">Eliminar</button>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p>No hay comentarios para este incidente.</p>
+            {% endfor %}
+        </div>
+
+        <h3>Agregar Comentario</h3>
+        <form id="add-comment-form">
+            {% csrf_token %}
+            {{ comentario_form.as_p }}
+            <button type="submit">Comentar</button>
+        </form>
+    </section>
+</main>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Agregar comentario
         const addCommentForm = document.getElementById("add-comment-form");
         addCommentForm.addEventListener("submit", function (event) {
             event.preventDefault();
@@ -152,7 +153,6 @@
             });
         });
 
-        // Editar comentario
         document.addEventListener("click", function (event) {
             if (event.target.classList.contains("edit-comment")) {
                 const comentarioId = event.target.dataset.id;
@@ -185,7 +185,6 @@
             }
         });
 
-        // Eliminar comentario
         document.addEventListener("click", function (event) {
             if (event.target.classList.contains("delete-comment")) {
                 const comentarioId = event.target.dataset.id;
@@ -214,3 +213,5 @@
         });
     });
 </script>
+</body>
+</html>
