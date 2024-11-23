@@ -1,9 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mi Sitio{% endblock %}</title>
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <header>
@@ -12,12 +15,11 @@
             <ul>
                 <li><a href="{% url 'accounts:sign_up' %}">Registro</a></li>
                 <li><a href="{% url 'accounts:sign_in' %}">Iniciar Sesión</a></li>
-                <li><a href="{% url 'accounts:profile' slug=slug%}">Perfil</a></li>
+                <li><a href="{% url 'accounts:profile' slug=slug %}">Perfil</a></li>
                 <li><a href="{% url 'my_organizations' %}">Mis Organizaciones</a></li>
             </ul>
         </nav>
     </header>
-    
 
     <main>
         {% block content %}
