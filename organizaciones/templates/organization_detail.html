@@ -24,13 +24,32 @@
             <td style="text-align: center;">{{ miembro.usuario.nombre }} {{ miembro.usuario.apellido }}</td>
             <td style="text-align: center;">{{ miembro.rol }}</td>
             <td style="text-align: center;">{{ miembro.usuario.correo }}</td>
-            {% if is_admin and miembro.rol != 'ADMINISTRADOR' %}
-            <td style="text-align: center;"><form action="{% url 'delete_user' organizacion.slug miembro.usuario.id %}" method="post" style="display: inline">
-                {% csrf_token %}
+            {% if is_admin %}
+            <td style="text-align: center;">
+                <!-- Formulario para cambiar el rol -->
+                {% if miembro.rol != 'ADMINISTRADOR' %}
+                <form action="" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="usuario_id" value="{{ miembro.usuario.id }}">
+                    <select name="rol">
+                        {% for rol_key, rol_display in miembro.ROLES %}
+                        <option value="{{ rol_key }}" {% if miembro.rol == rol_key %}selected{% endif %}>
+                            {{ rol_display }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Actualizar Rol</button>
+                </form>
+                {% endif %}
+                <!-- Botón para eliminar usuario -->
+                {% if is_admin and miembro.rol != 'ADMINISTRADOR' %}
+                <form action="{% url 'delete_user' organizacion.slug miembro.usuario.id %}" method="post" style="display: inline">
+                    {% csrf_token %}
                     <button type="submit" onclick="return confirm('Quieres eliminar a este usuario de la organización?');">
                         Eliminar
                     </button>
                 </form>
+                {% endif %}
             </td>
             {% endif %}
         </tr>
