@@ -1,58 +1,85 @@
-<h1>{{ organizacion.nombre }}</h1>
-<p>Correo: {{ organizacion.correo }}</p>
-<p>Código de acceso: {{ organizacion.codigo_acceso }}</p>
-
-
-<h2>Miembros</h2>
-<table border="1">
-    <thead>
-        <tr>
-            <th style="text-align: center;">Foto</th>
-            <th style="text-align: center;">Usuario</th>
-            <th style="text-align: center;">Rol</th>
-            <th style="text-align: center;">Correo</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for miembro in miembros %}
-        <tr>
-            <td style="text-align: center;">{% if miembro.usuario.foto_perfil %} 
-                <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" target="_blank" width="50px" height="50px">
-                {% else %} <img src="/media/default_pfp.jpg" alt="Foto de perfil por defecto" target="_blank" width="50px" height="50px"> 
-                {% endif %}
-            </td>
-            <td style="text-align: center;">{{ miembro.usuario.nombre }} {{ miembro.usuario.apellido }}</td>
-            <td style="text-align: center;">{{ miembro.rol }}</td>
-            <td style="text-align: center;">{{ miembro.usuario.correo }}</td>
-            {% if is_admin %}
-            <td style="text-align: center;">
-                <!-- Formulario para cambiar el rol -->
-                {% if miembro.rol != 'ADMINISTRADOR' %}
-                <form action="" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="usuario_id" value="{{ miembro.usuario.id }}">
-                    <select name="rol">
-                        {% for rol_key, rol_display in miembro.ROLES %}
-                        <option value="{{ rol_key }}" {% if miembro.rol == rol_key %}selected{% endif %}>
-                            {{ rol_display }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <button type="submit">Actualizar Rol</button>
-                </form>
-                {% endif %}
-                <!-- Botón para eliminar usuario -->
-                {% if is_admin and miembro.rol != 'ADMINISTRADOR' %}
-                <form action="{% url 'delete_user' organizacion.slug miembro.usuario.id %}" method="post" style="display: inline">
-                    {% csrf_token %}
-                    <button type="submit" onclick="return confirm('Quieres eliminar a este usuario de la organización?');">
-                        Eliminar
-                    </button>
-                </form>
-                {% endif %}
-            </td>
-            {% endif %}
-        </tr>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de Organización</title>
+</head>
+<body>
+    <!-- Bloque para mostrar mensajes -->
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </li>
         {% endfor %}
-    </tbody>
-</table>
+    </ul>
+    {% endif %}
+
+    <h1>{{ organizacion.nombre }}</h1>
+    <p>Correo: {{ organizacion.correo }}</p>
+    <p>Código de acceso: {{ organizacion.codigo_acceso }}</p>
+
+
+    <h2>Miembros</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th style="text-align: center;">Foto</th>
+                <th style="text-align: center;">Usuario</th>
+                <th style="text-align: center;">Rol</th>
+                <th style="text-align: center;">Correo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for miembro in miembros %}
+            <tr>
+                <td style="text-align: center;">
+                    {% if miembro.usuario.foto_perfil %} 
+                    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" target="_blank" width="50px" height="50px">
+                    {% else %} 
+                    <img src="/media/default_pfp.jpg" alt="Foto de perfil por defecto" target="_blank" width="50px" height="50px"> 
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">{{ miembro.usuario.nombre }} {{ miembro.usuario.apellido }}</td>
+                <td style="text-align: center;">{{ miembro.rol }}</td>
+                <td style="text-align: center;">{{ miembro.usuario.correo }}</td>
+                {% if is_admin %}
+                <td style="text-align: center;">
+                    <!-- Formulario para cambiar el rol -->
+                    {% if miembro != request.user %}
+                    <form action="" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="usuario_id" value="{{ miembro.usuario.id }}">
+                        <select name="rol">
+                            {% for rol_key, rol_display in miembro.ROLES %}
+                            <option value="{{ rol_key }}" {% if miembro.rol == rol_key %}selected{% endif %}>
+                                {{ rol_display }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" name="actualizar_rol">Actualizar Rol</button>
+                    </form>
+                    {% endif %}
+                    <!-- Botón para eliminar usuario -->
+                    {% if miembro != request.user %}
+                    <form action="" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="usuario_id" value="{{ miembro.usuario.id }}">
+                        <button type="submit" name="eliminar_usuario" onclick="return confirm('¿Seguro que deseas eliminar a este usuario?');">
+                            Eliminar
+                        </button>
+                    </form>
+                    {% else %}
+                    <p>No puedes editarte o eliminarte a ti mismo.</p>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

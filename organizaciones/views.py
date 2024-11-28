@@ -37,7 +37,7 @@ def my_organizations(request):
 def organization_detail(request, slug):
     organizacion = get_object_or_404(Organizacion, slug=slug)
     user_member = organizacion.miembros.filter(usuario=request.user).first()
-    if not organizacion.miembros.filter(usuario=request.user).exists():
+    if not user_member:
         return redirect('my_organizations')
     # Checar si usuario es admin para mostrar boton de eliminado.
     is_admin = user_member.rol == MiembroOrganizacion.ROL_ADMINISTRADOR
@@ -48,15 +48,21 @@ def organization_detail(request, slug):
         nuevo_rol = request.POST.get("rol")
         miembro = get_object_or_404(MiembroOrganizacion, usuario_id=usuario_id, organizacion=organizacion)
         
-        # Permitir solo la actualización a administrador o usuario
-        if nuevo_rol in dict(MiembroOrganizacion.ROLES).keys():
-            miembro.rol = nuevo_rol
-            miembro.save()
-            messages.success(request, f"El rol de {miembro.usuario.nombre} ha sido actualizado a {nuevo_rol}.")
-        else:
-            messages.error(request, "Rol inválido.")
+        # Permitir la actualización o eliminación incluso para administradores
+        if "actualizar_rol" in request.POST:
+            if nuevo_rol in dict(MiembroOrganizacion.ROLES).keys():
+                miembro.rol = nuevo_rol
+                miembro.save()
+                messages.success(request, f"El rol de {miembro.usuario.nombre} ha sido actualizado a {nuevo_rol}.")
+            else:
+                messages.error(request, "Rol inválido.")
+        elif "eliminar_usuario" in request.POST:
+            if miembro != user_member:  # Evitar que un admin se elimine a sí mismo
+                miembro.delete()
+                messages.success(request, f"{miembro.usuario.nombre} ha sido eliminado de la organización.")
+            else:
+                messages.error(request, "No puedes eliminarte a ti mismo.")
         return redirect("organization_detail", slug=slug)
-
 
     return render(request, 'organization_detail.html', {'organizacion': organizacion, 'miembros': miembros, 'is_admin': is_admin})
 
