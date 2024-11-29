@@ -23,10 +23,6 @@ __pycache__/
 # Archivos de medios (imágenes subidas, etc.)
 **/perfil/
 
-# Archivos estáticos generados automáticamente
-/staticfiles/
-/static/
-
 # Archivos de logs
 *.log
 
