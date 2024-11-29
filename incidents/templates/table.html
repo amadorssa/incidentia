@@ -44,7 +44,7 @@
             {% for prioridad_key, prioridad_display in prioridades %}
             <option value="{{ prioridad_key }}" {% if request.GET.prioridad == prioridad_key %}selected{% endif %}>{{ prioridad_display }}</option>
             {% endfor %}
-
+        </select>
     </form>
     {% if is_admin %}
     <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">

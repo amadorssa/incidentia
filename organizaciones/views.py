@@ -9,6 +9,10 @@ def create_organization(request):
     if request.method == "POST":
         nombre = request.POST.get('nombre')
         correo = request.POST.get('correo')
+        # Checar si organizacion ya existe
+        if Organizacion.objects.filter(nombre=nombre).exists():
+            messages.error(request, "Esta organizacion ya existe.")
+            return render(request, 'create_organization.html', {'nombre': nombre, 'correo': correo})
         organizacion = Organizacion.objects.create(nombre=nombre, correo=correo)
         MiembroOrganizacion.objects.create(usuario=request.user, organizacion=organizacion, rol=MiembroOrganizacion.ROL_ADMINISTRADOR)
         return redirect('my_organizations')

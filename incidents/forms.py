@@ -42,11 +42,23 @@ class IncidentForm(forms.ModelForm):
 
         # Guarda la organización en el formulario para usarla en otras partes
         self.organizacion = organizacion
+        self.usuario = usuario
 
-        if organizacion:
+        
+
+        if organizacion and usuario:
+            self.miembro_usuario = MiembroOrganizacion.objects.filter(
+                organizacion = self.organizacion,
+                usuario = usuario
+            ).first()
+        # Checa si el usuario actual es admin para privilegios
+            self.is_admin = self.miembro_usuario and self.miembro_usuario.rol == MiembroOrganizacion.ROL_ADMINISTRADOR
+            if self.is_admin:
             # Filtra los usuarios que pertenecen a la organización para asignarlos en el campo 'assigned_to'
-            miembros_organizacion = MiembroOrganizacion.objects.filter(organizacion=organizacion)
-            self.fields['assigned_to'].queryset = miembros_organizacion # Asigna los usuarios a 'assigned_to'
+                miembros_organizacion = MiembroOrganizacion.objects.filter(organizacion=organizacion)
+                self.fields['assigned_to'].queryset = miembros_organizacion # Asigna los usuarios a 'assigned_to'
+            else:
+                self.fields.pop('assigned_to')
         else:
             self.fields['assigned_to'].queryset = MiembroOrganizacion.objects.none()
 
