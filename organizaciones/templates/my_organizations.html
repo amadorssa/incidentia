@@ -6,59 +6,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Organizaciones</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
+    <!-- Header global -->
+    <header class="global-header">
+        <nav>
+            <ul class="nav-list">
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/about">Acerca de</a></li>
+                <li><a href="/services">Servicios</a></li>
+                <li><a href="/contact">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    
     <div class="d-flex">
+        
         <!-- Barra lateral -->
-        <nav class="sidebar bg-dark text-light" id="sidebar">
+        <nav class="sidebar" id="sidebar">
             <div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-2">
                 <h2 class="fs-5 m-0">Menú</h2>
                 <button class="btn btn-outline-light btn-sm" id="toggleMenu">☰</button>
             </div>
             <ul class="list-unstyled px-3">
                 <li>
-                    <a href="{% url 'my_organizations' %}" class="text-light text-decoration-none d-block py-2">
-                        Mis Organizaciones
-                    </a>
-                    <!-- Subopciones -->
+                    <a href="{% url 'my_organizations' %}" class="text-light text-decoration-none d-block py-2">Mis Organizaciones</a>
                     <ul class="list-unstyled ms-3">
-                        <li>
-                            <a href="{% url 'create_organization' %}" class="text-light text-decoration-none d-block py-1">
-                                Crear Organización
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'join_organization' %}" class="text-light text-decoration-none d-block py-1">
-                                Unirse a Organización
-                            </a>
-                        </li>
+                        <li><a href="{% url 'create_organization' %}" class="text-light text-decoration-none d-block py-1">Crear Organización</a></li>
+                        <li><a href="{% url 'join_organization' %}" class="text-light text-decoration-none d-block py-1">Unirse a Organización</a></li>
                     </ul>
                 </li>
             </ul>
         </nav>
 
         <!-- Contenido principal -->
-        <div class="content flex-grow-1">
-            <!-- Cabecera fija -->
-            <header class="bg-primary text-light p-3 sticky-top">
-                <h1 class="fs-4 m-0">Mis Organizaciones</h1>
-            </header>
+       
 
-            <!-- Lista de organizaciones -->
+        <main class="content">
+            
             <div class="container mt-4">
+                <header class="bg-primary text-light p-3 sticky-top">
+                    <h1 class="fs-4 m-0">Mis Organizaciones</h1>
+                </header>
                 <div class="row">
+                    
                     {% for miembro in organizaciones %}
                     <div class="col-12 mb-3">
                         <div class="card bg-dark text-light">
                             <div class="card-body">
                                 <h5 class="card-title">{{ miembro.organizacion.nombre }}</h5>
                                 <p class="card-text">Explora y gestiona los incidentes relacionados con esta organización.</p>
-                                
-                                <!-- Contenedor para alinear los botones -->
                                 <div class="d-flex justify-content-end">
                                     <a href="{% url 'incidents:incident_table' miembro.organizacion.slug %}" class="btn btn-primary btn-sm me-2">Ver Incidentes</a>
                                     <a href="{% url 'organization_detail' miembro.organizacion.slug %}" class="btn btn-outline-light btn-sm">Detalles</a>
@@ -71,9 +71,18 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        </main>
     </div>
-    <!-- JavaScript -->
+
+    <!-- Footer global -->
+    <footer class="global-footer">
+        <p>&copy; {{ year }} Tu Empresa. Todos los derechos reservados.</p>
+        <ul class="footer-links">
+            <li><a href="/privacy">Política de privacidad</a></li>
+            <li><a href="/terms">Términos de servicio</a></li>
+        </ul>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/scripts.js' %}"></script>
 </body>
