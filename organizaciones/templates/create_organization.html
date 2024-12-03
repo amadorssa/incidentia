@@ -1,37 +1,26 @@
-{% load static %}
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
-<nav class="volver" id="volver">
-    <div class=" d-flex align-items-center justify-content-between px-3 ">
-        <a href="{% url 'my_organizations' %}" class="btn btn-primary btn-sm me-2">
-            &#8606; Volver
-        </a>
+{% extends 'organizations_base.html' %}
+{% block title %}Mis Organizaciones{% endblock %}
+    
+{% block content %}
+    <div class="form-container">
+        <form class="form-content" method="post">
+            {% csrf_token %}
+            <h1 class="form-title">Crear Organización</h1>
+            <label for="nombre">Nombre de la organización:</label>
+            <input type="text" id="nombre" name="nombre" required>
+            <label for="correo">Correo:</label>
+            <input type="email" id="correo" name="correo" required>
+            <button class="btn btn-outline-light btn-sm" type="submit">Crear Organización</button>
+        </form>
+        {% if messages %}
+                <!-- Bloque para mostrar mensajes -->
+            <ul style="text-align: center;">
+                {% for message in messages %}
+                <p class="error-msg">
+                    {{ message }}
+                </p>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
-</nav>
-
-<div class="form-container">
-    <form class="form-content" method="post">
-        {% csrf_token %}
-        <h1 class="form-title">Crear Organización</h1>
-        <label for="nombre">Nombre de la organización:</label>
-        <input type="text" id="nombre" name="nombre" required>
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" name="correo" required>
-        <button class="btn btn-outline-light btn-sm" type="submit">Crear Organización</button>
-    </form>
-    {% if messages %}
-            <!-- Bloque para mostrar mensajes -->
-        <ul style="text-align: center;">
-            {% for message in messages %}
-            <p class="error-msg">
-                {{ message }}
-            </p>
-            {% endfor %}
-        </ul>
-    {% endif %}
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}

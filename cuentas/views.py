@@ -41,7 +41,7 @@ def sign_in(request):
         usuario = authenticate(request, correo=correo, password=password)
         if usuario is not None:
             login(request, usuario)
-            return redirect('my_organizations')
+            return redirect('organizations:my_organizations')
         else:
             return render(request, 'login.html', {'error': 'Credenciales incorrectas.'})
     return render(request, 'login.html')

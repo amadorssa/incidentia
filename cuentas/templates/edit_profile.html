@@ -1,61 +1,65 @@
-{% block content %}
-  <h1>Editar perfil</h1>
-
-  <!-- Mostrar la imagen del perfil arriba -->
-  {% if usuario.foto_perfil %}
-  <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" target="_blank">
-  {% else %}
-  <img src="/media/default_pfp.jpg" alt="Foto de perfil por defecto" target="_blank">
-  {% endif %}
-
-  <!-- Mostrar errores del formulario si hay -->
-  {% if formulario.non_field_errors %}
-    <div class="errorlist">
-      {{ formulario.non_field_errors }}
-    </div>
-  {% endif %}
-
-  <!-- Formulario para actualizar el perfil -->
-  <form method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
-    {% csrf_token %}
+{% extends 'accounts_base.html' %}
+{% block title %}Detalle de incidente{% endblock %}
     
-    <!-- Mostrar correo pero sin opción a modificar -->
-    <p>
-      <label for="id_correo">Correo:</label>
-      {{ formulario.correo }}
-    </p>
-
-    <p>
-      <label for="id_nombre">Nombre:</label>
-      {{ formulario.nombre }}
-      {{ formulario.nombre.errors }}  <!-- Mostrar errores en campo nombre -->
-    </p>
-
-    <p>
-      <label for="id_apellido">Apellido:</label>
-      {{ formulario.apellido }}
-      {{ formulario.apellido.errors }}  <!-- Mostrar errores en campo apellido -->
-    </p>
-
-    <!-- Cambiar foto de perfil -->
-    <div>
-      <label for="id_foto_perfil">Foto de perfil:</label>
-      <input type="file" name="foto_perfil" id="id_foto_perfil">
-      {{ formulario.foto_perfil.errors }}  <!-- Mostrar errores en campo foto_perfil -->
-    </div>
-
-    <!-- Opción para eliminar la foto en un renglón distinto -->
+{% block content %}
+  <div style="text-align: center;">
     {% if usuario.foto_perfil %}
-      <div style="margin-top: 10px;">
-        <input type="checkbox" name="foto_perfil-clear" id="id_foto_perfil-clear_id">
-        <label for="id_foto_perfil-clear_id">Eliminar foto de perfil</label>
-      </div>
+    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" target="_blank">
+    {% else %}
+    <img src="/media/default_pfp.jpg" alt="Foto de perfil por defecto" target="_blank">
     {% endif %}
 
-    <!-- Contenedor para los botones -->
-    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-        <button type="submit" style="padding: 10px; background-color: lightgray;">Actualizar Perfil</button>
-        <a href="{% url 'accounts:sign_out' %}" class="btn" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Cerrar Sesión</a>
-    </div>
-  </form>
+    <!-- Mostrar errores del formulario si hay -->
+    {% if formulario.non_field_errors %}
+      <div class="errorlist">
+        {{ formulario.non_field_errors }}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Formulario para actualizar el perfil -->
+  <div class="form-container">
+    <form method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
+      {% csrf_token %}
+      
+      <!-- Mostrar correo pero sin opción a modificar -->
+      <p>
+        <label for="id_correo">Correo:</label>
+        {{ formulario.correo }}
+      </p>
+
+      <p>
+        <label for="id_nombre">Nombre:</label>
+        {{ formulario.nombre }}
+        {{ formulario.nombre.errors }}  <!-- Mostrar errores en campo nombre -->
+      </p>
+
+      <p>
+        <label for="id_apellido">Apellido:</label>
+        {{ formulario.apellido }}
+        {{ formulario.apellido.errors }}  <!-- Mostrar errores en campo apellido -->
+      </p>
+
+      <!-- Cambiar foto de perfil -->
+      <div>
+        <label for="id_foto_perfil">Foto de perfil:</label>
+        <input type="file" name="foto_perfil" id="id_foto_perfil">
+        {{ formulario.foto_perfil.errors }}  <!-- Mostrar errores en campo foto_perfil -->
+      </div>
+
+      <!-- Opción para eliminar la foto en un renglón distinto -->
+      {% if usuario.foto_perfil %}
+        <div style="margin-top: 10px;">
+          <input type="checkbox" name="foto_perfil-clear" id="id_foto_perfil-clear_id">
+          <label for="id_foto_perfil-clear_id">Eliminar foto de perfil</label>
+        </div>
+      {% endif %}
+
+      <!-- Contenedor para los botones -->
+      <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="submit" style="padding: 10px; background-color: lightgray;">Actualizar Perfil</button>
+          <a href="{% url 'accounts:sign_out' %}" class="btn" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Cerrar Sesión</a>
+      </div>
+    </form>
+  </div>
 {% endblock %}

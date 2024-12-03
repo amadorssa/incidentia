@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'incidents_base.html' %}
+{% block title %}Mis Organizaciones{% endblock %}
+    
     <style>
         /* Estilos para el modal */
         #incidentPopup {
@@ -30,109 +26,105 @@
             z-index: 999;
         }
     </style>
-</head>
 
-<a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
-<a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
-<a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
+{% block content %}
+    <div class="form-container">
+        <h1>Edit Incident</h1>
+        <form id="incident-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <!-- Campo oculto para almacenar el ID del incidente subordinado -->
+            <input type="hidden" id="related-incident-id" name="related_incident">
 
+            <!-- Botón para abrir el modal de incidentes -->
+            <button type="button" onclick="openPopup()">Subordinar incidente</button>
 
-<h1>Edit Incident</h1>
-<form id="incident-form" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    
-    <!-- Campo oculto para almacenar el ID del incidente subordinado -->
-    <input type="hidden" id="related-incident-id" name="related_incident">
+            <input type="hidden" id="related-incidents" name="related_incidents">
+            <button type="submit" id="save-button" name="action" value="save">Guardar cambios</button>
+            <button type="submit" id="save-exit-button" name="action" value="save_exit">Guardar y salir</button>
+        </form>
 
-    <!-- Botón para abrir el modal de incidentes -->
-    <button type="button" onclick="openPopup()">Subordinar incidente</button>
+        <div id="success-message" style="display: none; color: green;">
+            ¡Cambios guardados correctamente!
+        </div>
 
-    <input type="hidden" id="related-incidents" name="related_incidents">
-    <button type="submit" id="save-button" name="action" value="save">Guardar cambios</button>
-    <button type="submit" id="save-exit-button" name="action" value="save_exit">Guardar y salir</button>
-</form>
+        <!-- Modal para mostrar los incidentes de la organización -->
+        <div id="overlay"></div>
+        <div id="incidentPopup">
+            <h2>Incidentes en la Organización</h2>
+            <ul>
+                {% for incident in incidentes_organizacion %}
+                    <li>
+                        {{ incident.incident_text }} - {{ incident.pub_date }}
+                        <button type="button" onclick="selectIncident('{{ incident.id }}', '{{ incident.incident_text }}')">Agregar</button>
+                    </li>
+                {% endfor %}
+            </ul>
+            <button type="button" onclick="closePopup()">Cerrar</button>
+        </div>
 
-<div id="success-message" style="display: none; color: green;">
-    ¡Cambios guardados correctamente!
-</div>
-
-<!-- Modal para mostrar los incidentes de la organización -->
-<div id="overlay"></div>
-<div id="incidentPopup">
-    <h2>Incidentes en la Organización</h2>
-    <ul>
-        {% for incident in incidentes_organizacion %}
-            <li>
-                {{ incident.incident_text }} - {{ incident.pub_date }}
-                <button type="button" onclick="selectIncident('{{ incident.id }}', '{{ incident.incident_text }}')">Agregar</button>
-            </li>
-        {% endfor %}
-    </ul>
-    <button type="button" onclick="closePopup()">Cerrar</button>
-</div>
-
-<script>
-
-    // Función para seleccionar un incidente y agregarlo al campo oculto
-    function selectIncident(incidentId, incidentText) {
-        const relatedIncidentsField = document.getElementById('related-incidents');
-        
-        // Comprueba si el ID ya está en el campo oculto
-        if (!relatedIncidentsField.value.includes(incidentId)) {
-            const currentValue = relatedIncidentsField.value;
-            relatedIncidentsField.value = currentValue ? `${currentValue},${incidentId}` : incidentId;
-            alert("Incidente relacionado agregado: " + incidentText);
-        }
-        
-        closePopup();
-    }
-
-    // Funciones para abrir y cerrar el modal
-    function openPopup() {
-        document.getElementById('overlay').style.display = 'block';
-        document.getElementById('incidentPopup').style.display = 'block';
-    }
-
-    function closePopup() {
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('incidentPopup').style.display = 'none';
-    }
-
-
-    document.getElementById('incident-form').addEventListener('submit', function(event) {
-        const action = document.activeElement.getAttribute('value');  // Identifica el botón presionado
-        
-        // Si se presiona "Save and Exit", permite el flujo normal de solicitud
-        if (action === 'save_exit') {
-            return;  // No previene el envío del formulario
-        }
-
-        // Si se presiona "Save changes", previene el envío normal y hace una solicitud AJAX
-        event.preventDefault();  
-
-        const formData = new FormData(this);
-
-        fetch("{% url 'incidents:edit_incident' slug=slug pk=incident.id %}", {
-            method: "POST",
-            body: formData,
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
+    <script>
+        // Función para seleccionar un incidente y agregarlo al campo oculto
+        function selectIncident(incidentId, incidentText) {
+            const relatedIncidentsField = document.getElementById('related-incidents');
+            
+            // Comprueba si el ID ya está en el campo oculto
+            if (!relatedIncidentsField.value.includes(incidentId)) {
+                const currentValue = relatedIncidentsField.value;
+                relatedIncidentsField.value = currentValue ? `${currentValue},${incidentId}` : incidentId;
+                alert("Incidente relacionado agregado: " + incidentText);
             }
-            throw new Error("Error en la respuesta de la solicitud.");
-        })
-        .then(data => {
-            document.getElementById('success-message').style.display = 'block';
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred while saving the changes.");
+            
+            closePopup();
+        }
+
+        // Funciones para abrir y cerrar el modal
+        function openPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('incidentPopup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('incidentPopup').style.display = 'none';
+        }
+
+
+        document.getElementById('incident-form').addEventListener('submit', function(event) {
+            const action = document.activeElement.getAttribute('value');  // Identifica el botón presionado
+            
+            // Si se presiona "Save and Exit", permite el flujo normal de solicitud
+            if (action === 'save_exit') {
+                return;  // No previene el envío del formulario
+            }
+
+            // Si se presiona "Save changes", previene el envío normal y hace una solicitud AJAX
+            event.preventDefault();  
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'incidents:edit_incident' slug=slug pk=incident.id %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error("Error en la respuesta de la solicitud.");
+            })
+            .then(data => {
+                document.getElementById('success-message').style.display = 'block';
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while saving the changes.");
+            });
         });
-    });
-</script>
+    </script>
+{% endblock %}

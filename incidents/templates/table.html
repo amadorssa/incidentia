@@ -1,15 +1,7 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablas de Incidentes</title>
-</head>
-<body>
-    <a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
-    <a href="{% url 'incidents:add_incident' slug=slug %}">Crear incidente</a>
-    <a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
-    <h1>Tabla de Incidentes.</h1>
+{% extends 'incidents_base.html' %}
+{% block title %}Mis Organizaciones{% endblock %}
+    
+{% block content %}
 
     <form action="{% url 'incidents:incident_table' slug=slug %}" method="get">
         <input name="q" type="text" placeholder="Buscar por título..." value="{{ request.GET.q|default:'' }}">
@@ -47,6 +39,7 @@
         </select>
     </form>
     {% if is_admin %}
+    
     <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">
         <input type="hidden" name="q" value="{{ request.GET.q }}">
         <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
@@ -184,7 +177,5 @@
                 });
             });
         });
-    </script>
-    
-</body>
-</html>
+    </script>    
+{% endblock %}

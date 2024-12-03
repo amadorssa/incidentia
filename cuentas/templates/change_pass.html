@@ -1,16 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-</head>
-
-<body>
-<h1>Cambiar Contraseña</h1>
+{% extends 'accounts_base.html' %}
+{% block title %}Detalle de incidente{% endblock %}
+    
+{% block content %}
     <div style="text-align: center;">
         {% if usuario.foto_perfil %}
         <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" target="_blank">
@@ -20,13 +11,14 @@
         <p>{{ usuario.nombre }}</p>
     </div>
     
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ formulario.as_p }}
-    
-        <button type="submit" name="action" value="save">Cambiar Contraseña</button>
-        <!-- Boton para cancelar y regresarse al perfil del usuario -->
-        <button type="button" onclick="location.href='{% url 'accounts:profile' slug=slug %}'">Cancelar</button>
-    </form>
-</body>
-</html>
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ formulario.as_p }}
+        
+            <button type="submit" name="action" value="save">Cambiar Contraseña</button>
+            <!-- Boton para cancelar y regresarse al perfil del usuario -->
+            <button type="button" onclick="location.href='{% url 'accounts:profile' slug=slug %}'">Cancelar</button>
+        </form>
+    </div>
+{% endblock %}

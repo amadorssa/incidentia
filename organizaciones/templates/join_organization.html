@@ -1,6 +1,14 @@
-<form method="post">
-    {% csrf_token %}
-    <label for="codigo">Código de acceso:</label>
-    <input type="text" id="codigo" name="codigo" required>
-    <button type="submit">Unirse a Organización</button>
-</form>
+{% extends 'organizations_base.html' %}
+{% block title %}Mis Organizaciones{% endblock %}
+    
+{% block content %}
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <label for="codigo">Código de acceso:</label>
+            <input type="text" id="codigo" name="codigo" required>
+            <button type="submit">Unirse a Organización</button>
+        </form>
+    </div>
+{% endblock %}
+

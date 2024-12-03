@@ -1,66 +1,58 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablas de Incidentes</title>
-</head>
-<body>
-    <a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
-    <a href="{% url 'incidents:incident_table' slug=slug %}">Lista de incidentes</a>
-    <a href="{% url 'incidents:add_incident' slug=slug %}">Crear incidente</a>
-    <a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
-    <h1>Tabla de Incidentes.</h1>
+{% extends 'incidents_base.html' %}
+{% block title %}Mis Organizaciones{% endblock %}
+    
+{% block content %}
+        <br><br><br>
 
-    <table style="width: auto; border-collapse: collapse; margin-bottom: 10px; text-align: center;">
-        <tr>
-            <td style="background-color: #5bc0de; color: #fff; padding: 5px;">Abiertos</td>
-            <td style="background-color: #f0ad4e; color: #fff; padding: 5px;">En progreso</td>
-            <td style="background-color: #5cb85c; color: #fff; padding: 5px;">Resueltos</td>
-            <td style="background-color: #d9534f; color: #fff; padding: 5px;">Descartados</td>
-            <td style="background-color: #000000; color: #fff; padding: 5px;">Total de Incidentes</td>
-        </tr>
-        <tr>
-            <td style="background-color: #d9edf7; padding: 5px;">{{ incident_counts.ABIERTO }}</td>
-            <td style="background-color: #fcf8e3; padding: 5px;">{{ incident_counts.EN_PROGRESO }}</td>
-            <td style="background-color: #dff0d8; padding: 5px;">{{ incident_counts.RESUELTO }}</td>
-            <td style="background-color: #f2dede; padding: 5px;">{{ incident_counts.DESCARTADO }}</td>
-            <td style="background-color: #a7a6a691; padding: 5px;">{{ total_incidentes }}</td>
-        </tr>
-    </table>
-
-    <!-- Salto de pagina -->
-    <br><br><br>
-
-    <!-- Últimos 5 incidentes -->
-    <div class="latest-incidents">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Incidente</th>
-                    <th>Asignado</th>
-                    <th>Prioridad</th>
-                    <th>Categoría</th>
-                    <th>Estado</th>
-                    <th>Creado</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for incident in latest_incidents %}
-                <tr>
-                    <td>{{ incident.id }}</td>
-                    <td>{{ incident.incident_text }}</td>
-                    <td>{{ incident.assigned_to }}</td>
-                    <td>{{ incident.get_prioridad_display }}</td>
-                    <td>{{ incident.get_category_display }}</td>
-                    <td>{{ incident.get_estado_display }}</td>
-                    <td>{{ incident.pub_date|date:"d/m/Y H:i" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+        <table style="width: auto; border-collapse: collapse; margin-bottom: 10px; text-align: center;">
+            <tr>
+                <td style="background-color: #5bc0de; color: #fff; padding: 5px;">Abiertos</td>
+                <td style="background-color: #f0ad4e; color: #fff; padding: 5px;">En progreso</td>
+                <td style="background-color: #5cb85c; color: #fff; padding: 5px;">Resueltos</td>
+                <td style="background-color: #d9534f; color: #fff; padding: 5px;">Descartados</td>
+                <td style="background-color: #000000; color: #fff; padding: 5px;">Total de Incidentes</td>
+            </tr>
+            <tr>
+                <td style="background-color: #d9edf7; padding: 5px;">{{ incident_counts.ABIERTO }}</td>
+                <td style="background-color: #fcf8e3; padding: 5px;">{{ incident_counts.EN_PROGRESO }}</td>
+                <td style="background-color: #dff0d8; padding: 5px;">{{ incident_counts.RESUELTO }}</td>
+                <td style="background-color: #f2dede; padding: 5px;">{{ incident_counts.DESCARTADO }}</td>
+                <td style="background-color: #a7a6a691; padding: 5px;">{{ total_incidentes }}</td>
+            </tr>
         </table>
-    </div>
+
+        <!-- Salto de pagina -->
+        <br><br><br>
+
+        <!-- Últimos 5 incidentes -->
+        <div class="latest-incidents">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Incidente</th>
+                        <th>Asignado</th>
+                        <th>Prioridad</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Creado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for incident in latest_incidents %}
+                    <tr>
+                        <td>{{ incident.id }}</td>
+                        <td>{{ incident.incident_text }}</td>
+                        <td>{{ incident.assigned_to }}</td>
+                        <td>{{ incident.get_prioridad_display }}</td>
+                        <td>{{ incident.get_category_display }}</td>
+                        <td>{{ incident.get_estado_display }}</td>
+                        <td>{{ incident.pub_date|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     <script> // Enviar cambios al servidor mediante una petición POST (usado para cambiar el estado del incidente)
         document.addEventListener("DOMContentLoaded", function () {
@@ -93,6 +85,4 @@
             });
         });
     </script>
-    
-</body>
-</html>
+{% endblock %}

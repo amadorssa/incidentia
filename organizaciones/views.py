@@ -15,7 +15,7 @@ def create_organization(request):
             return render(request, 'create_organization.html', {'nombre': nombre, 'correo': correo})
         organizacion = Organizacion.objects.create(nombre=nombre, correo=correo)
         MiembroOrganizacion.objects.create(usuario=request.user, organizacion=organizacion, rol=MiembroOrganizacion.ROL_ADMINISTRADOR)
-        return redirect('my_organizations')
+        return redirect('organizations:my_organizations')
     return render(request, 'create_organization.html')
 
 @login_required
@@ -28,7 +28,7 @@ def join_organization(request):
             messages.success(request, "Te has unido a la organización.")
         else:
             messages.warning(request, "Ya eres miembro de esta organización.")
-        return redirect('my_organizations')
+        return redirect('organizations:my_organizations')
     return render(request, 'join_organization.html')
 
 @login_required
@@ -42,7 +42,7 @@ def organization_detail(request, slug):
     organizacion = get_object_or_404(Organizacion, slug=slug)
     user_member = organizacion.miembros.filter(usuario=request.user).first()
     if not user_member:
-        return redirect('my_organizations')
+        return redirect('organizations:my_organizations')
     # Checar si usuario es admin para mostrar boton de eliminado.
     is_admin = user_member.rol == MiembroOrganizacion.ROL_ADMINISTRADOR
     miembros = organizacion.miembros.all()
@@ -66,7 +66,7 @@ def organization_detail(request, slug):
                 messages.success(request, f"{miembro.usuario.nombre} ha sido eliminado de la organización.")
             else:
                 messages.error(request, "No puedes eliminarte a ti mismo.")
-        return redirect("organization_detail", slug=slug)
+        return redirect("organizations:organization_detail", slug=slug)
 
     return render(request, 'organization_detail.html', {'organizacion': organizacion, 'miembros': miembros, 'is_admin': is_admin})
 
@@ -77,5 +77,5 @@ def delete_user(request, slug, usuario_id):
     miembro = get_object_or_404(MiembroOrganizacion, usuario_id=usuario_id, organizacion=organizacion)
     miembro.delete()
     messages.success(request, "Usuario borrado satisfactoriamente.")
-    return redirect(f"{reverse('organization_detail', args=[slug])}")
+    return redirect(f"{reverse('organizations:organization_detail', args=[slug])}")
     
