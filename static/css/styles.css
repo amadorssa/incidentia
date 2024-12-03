@@ -48,7 +48,7 @@ label {
 }
 
 /* Estilo para los campos de entrada */
-input[type="text"], input[type="password"] {
+input[type="text"], input[type="password"], input[type="email"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -68,6 +68,7 @@ button, input[type="submit"] {
     font-size: 16px;
     cursor: pointer;
     width: 100%;
+    margin-block: 10px;
 }
 
 button:hover, input[type="submit"]:hover {
@@ -187,6 +188,26 @@ header {
     display: flex;
     align-items: center;
 }  
+
+/* Estilo para los elementos select */
+.custom-select {
+    width: 100%; /* Ancho fijo para cada select */
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+/* Agrega estilo cuando el select está enfocado */
+.custom-select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+
   
 @media screen and (max-width: 500px) {
     .header a {
@@ -198,6 +219,10 @@ header {
   
     .header-right {
       float: none;
+    }
+
+    .custom-select {
+        width: 100%; /* Hace que los selects ocupen todo el ancho disponible */
     }
 }
   

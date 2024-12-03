@@ -4,49 +4,58 @@
 {% block content %}
 
     <form action="{% url 'incidents:incident_table' slug=slug %}" method="get">
-        <input name="q" type="text" placeholder="Buscar por título..." value="{{ request.GET.q|default:'' }}">
-        
-        <select name="user_creator">
-            <option value="">-- Filtrar por Usuario --</option>
-            {% for user in user_creators %}
-            <option value="{{ user.id }}" {% if request.GET.user_creator == user.id|stringformat:"s" %}selected{% endif %}>
-                {{ user|default:"Anónimo"}}
-            </option>
-            {% endfor %}
-        </select>
+        <div class="form-container">
 
-        <select name="estado">
-            <option value="">-- Filtrar por Estado --</option>
-            {% for estado_key, estado_display in estados %}
-                <option value="{{ estado_key }}" {% if request.GET.estado == estado_key %}selected{% endif %}>
-                    {{ estado_display }}
+            <input name="q" type="text" placeholder="Buscar por título..." value="{{ request.GET.q|default:'' }}">
+            
+            <select name="user_creator" class="custom-select">
+                <option value="">-- Filtrar por Usuario --</option>
+                {% for user in user_creators %}
+                <option value="{{ user.id }}" {% if request.GET.user_creator == user.id|stringformat:"s" %}selected{% endif %}>
+                    {{ user|default:"Anónimo"}}
                 </option>
-            {% endfor %}
-        </select>
+                {% endfor %}
+            </select>
 
-        <select name="category">
-            <option value="">-- Filtrar por Categoría --</option>
-            {% for category_key, category_display in categories %}
-            <option value="{{ category_key }}" {% if request.GET.category == category_key %}selected{% endif %}>{{ category_display }}</option>
-            {% endfor %}
-        </select>
+            <select name="estado" class="custom-select">
+                <option value="">-- Filtrar por Estado --</option>
+                {% for estado_key, estado_display in estados %}
+                    <option value="{{ estado_key }}" {% if request.GET.estado == estado_key %}selected{% endif %}>
+                        {{ estado_display }}
+                    </option>
+                {% endfor %}
+            </select>
 
-        <select name="prioridad">
-            <option value="">-- Filtrar por Prioridad --</option>
-            {% for prioridad_key, prioridad_display in prioridades %}
-            <option value="{{ prioridad_key }}" {% if request.GET.prioridad == prioridad_key %}selected{% endif %}>{{ prioridad_display }}</option>
-            {% endfor %}
-        </select>
+            <select name="category" class="custom-select">
+                <option value="">-- Filtrar por Categoría --</option>
+                {% for category_key, category_display in categories %}
+                <option value="{{ category_key }}" {% if request.GET.category == category_key %}selected{% endif %}>{{ category_display }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="prioridad" class="custom-select">
+                <option value="">-- Filtrar por Prioridad --</option>
+                {% for prioridad_key, prioridad_display in prioridades %}
+                <option value="{{ prioridad_key }}" {% if request.GET.prioridad == prioridad_key %}selected{% endif %}>{{ prioridad_display }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Buscar</button>
+        </div>
     </form>
-    {% if is_admin %}
     
-    <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">
-        <input type="hidden" name="q" value="{{ request.GET.q }}">
-        <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
-        <button type="submit">Buscar</button>
-        <button type="submit">CSV</button>
-    </form>
+    {% if is_admin %}
+    <!-- Formulario para exportar a CSV solo si es administrador -->
+        <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline;">
+            <input type="hidden" name="q" value="{{ request.GET.q }}">
+            <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
+            <input type="hidden" name="estado" value="{{ request.GET.estado }}">
+            <input type="hidden" name="category" value="{{ request.GET.category }}">
+            <input type="hidden" name="prioridad" value="{{ request.GET.prioridad }}">
+            <button type="submit" class="btn btn-success" style="width: 30%; float: right;">Exportar CSV</button>
+        </form>
     {% endif %}
+
     <table border="1">
         <thead>
             <tr>
@@ -111,14 +120,23 @@
                     {% endif %}
                 </td>
                 {% if is_admin or user == incident.user_creator %}
-                <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>
-                <td style="text-align: center;"><form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" onclick="return confirm('Quieres eliminar este incidente?');">
-                                                        Eliminar
-                                                    </button>
-                                                </form>
+                <td style="text-align: center;">
+                    <!-- Botón Editar -->
+                    <a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}" class="btn btn-primary">
+                        Editar
+                    </a>
                 </td>
+                
+                <td style="text-align: center;">
+                    <!-- Formulario para Eliminar -->
+                    <form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Quieres eliminar este incidente?');" class="btn btn-danger">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+                
                 {% endif %}
             </tr>
             {% empty %}
