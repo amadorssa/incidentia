@@ -12,7 +12,7 @@
                         <h5 class="card-title">{{ miembro.organizacion.nombre }}</h5>
                         <p class="card-text">Explora y gestiona los incidentes relacionados con esta organización.</p>
                         <div class="d-flex justify-content-end">
-                            <a href="{% url 'incidents:incident_table' miembro.organizacion.slug %}" class="btn btn-primary btn-sm me-2">Ver Incidentes</a>
+                            <a href="{% url 'incidents:overview' miembro.organizacion.slug %}" class="btn btn-primary btn-sm me-2">Ver Incidentes</a>
                             <a href="{% url 'organizations:organization_detail' miembro.organizacion.slug %}" class="btn btn-outline-light btn-sm">Detalles</a>
                         </div>
                     </div>
