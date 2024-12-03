@@ -5,23 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mi Sitio{% endblock %}</title>
+    <script>
+        // Pasar la URL de "Mis Organizaciones" a JavaScript
+        const myOrganizationsUrl = "{% url 'my_organizations' %}";
+    </script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+
 </head>
 <body>
-    <!-- Header Global -->
-    <header class="global-header">
-        <nav>
-            <ul class="nav-list">
-                <li><a href="{% url 'accounts:sign_up' %}">Registro</a></li>
-                <li><a href="{% url 'accounts:sign_in' %}">Iniciar Sesión</a></li>
-                <li><a href="{% url 'accounts:profile' slug=slug %}">Perfil</a></li>
-                <li><a href="{% url 'my_organizations' %}">Mis Organizaciones</a></li>
-            </ul>
-        </nav>
-    </header>
+   
+    <global-header></global-header>
 
     <!-- Contenedor principal -->
     <div class="d-flex">
@@ -53,15 +50,6 @@
         </main>
     </div>
 
-    <!-- Footer Global -->
-    <footer class="global-footer">
-        <p>© 2024 Mi Sitio. Todos los derechos reservados.</p>
-        <ul class="footer-links">
-            <li><a href="#">Política de Privacidad</a></li>
-            <li><a href="#">Términos de Uso</a></li>
-            <li><a href="#">Contacto</a></li>
-        </ul>
-    </footer>
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>

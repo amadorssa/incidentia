@@ -1,8 +1,44 @@
-<form method="post">
-    {% csrf_token %}
-    <label for="nombre">Nombre de la organización:</label>
-    <input type="text" id="nombre" name="nombre" required>
-    <label for="correo">Correo:</label>
-    <input type="email" id="correo" name="correo" required>
-    <button type="submit">Crear Organización</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Organización</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Incluir header global -->
+    <global-header></global-header>
+
+    <!-- Contenedor principal -->
+    <div class="login-bg">
+        <div class="form-container">
+            <h1 class="form-title">Crear Organización</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="nombre" class="form-label">Nombre de la organización:</label>
+                    <input type="text" id="nombre" name="nombre" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="correo" class="form-label">Correo:</label>
+                    <input type="email" id="correo" name="correo" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Crear Organización</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Incluir footer global -->
+    <global-footer></global-footer>
+
+    <!-- Bootstrap JS y dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Archivo de JS con los componentes -->
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

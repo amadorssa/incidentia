@@ -9,9 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script type="module" src="{% static 'js/main.js' %}"></script>
 </head>
-<body>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
     <!-- Fondo principal -->
+    <div class="login-bg">
         <div class="form-container">
             <h1 class="form-title">Iniciar Sesión</h1>
             <form method="post" class="form-content">
@@ -27,5 +29,12 @@
                 <p class="error-msg">{{ error }}</p>
             {% endif %}
         </div>
+        
+    </div>
+    
+    <!-- Footer (con flex para quedar al fondo) -->
+<global-footer></global-footer>
+    
+    
 </body>
 </html>

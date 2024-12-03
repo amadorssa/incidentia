@@ -1,166 +1,207 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tablas de Incidentes</title>
+
+    <!-- Cargar scripts y estilos -->
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    <style>
+        /* Barra de filtros horizontal */
+        .filters-bar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .filters-bar .form-control {
+            width: auto; /* Ajusta el tamaño de los campos */
+            max-width: 250px;
+        }
+    </style>
 </head>
+
 <body>
-    <a href="{% url 'incidents:overview' slug=slug %}">Inicio</a>
-    <a href="{% url 'incidents:add_incident' slug=slug %}">Crear incidente</a>
-    <a href="{% url 'accounts:profile' slug=slug%}">Perfil</a>
-    <h1>Tabla de Incidentes.</h1>
+    <!-- Encabezado global -->
+    <global-header></global-header>
 
-    <form action="{% url 'incidents:incident_table' slug=slug %}" method="get">
-        <input name="q" type="text" placeholder="Buscar por título..." value="{{ request.GET.q|default:'' }}">
-        
-        <select name="user_creator">
-            <option value="">-- Filtrar por Usuario --</option>
-            {% for user in user_creators %}
-            <option value="{{ user.id }}" {% if request.GET.user_creator == user.id|stringformat:"s" %}selected{% endif %}>
-                {{ user|default:"Anónimo"}}
-            </option>
-            {% endfor %}
-        </select>
+    <h1 class="mt-4"> </h1>
+    <h1 class="mt-4"> </h1>
 
-        <select name="estado">
-            <option value="">-- Filtrar por Estado --</option>
-            {% for estado_key, estado_display in estados %}
-                <option value="{{ estado_key }}" {% if request.GET.estado == estado_key %}selected{% endif %}>
-                    {{ estado_display }}
-                </option>
-            {% endfor %}
-        </select>
+    <div class="container">
+        <!-- Navegación de enlaces -->
+        <nav class="mt-4">
+            <a href="{% url 'incidents:overview' slug=slug %}">Inicio</a> |
+            <a href="{% url 'incidents:add_incident' slug=slug %}">Crear incidente</a> |
+            <a href="{% url 'accounts:profile' slug=slug %}">Perfil</a>
+        </nav>
 
-        <select name="category">
-            <option value="">-- Filtrar por Categoría --</option>
-            {% for category_key, category_display in categories %}
-            <option value="{{ category_key }}" {% if request.GET.category == category_key %}selected{% endif %}>{{ category_display }}</option>
-            {% endfor %}
-        </select>
+        <h1 class="mt-4">Tabla de Incidentes</h1>
 
-        <select name="prioridad">
-            <option value="">-- Filtrar por Prioridad --</option>
-            {% for prioridad_key, prioridad_display in prioridades %}
-            <option value="{{ prioridad_key }}" {% if request.GET.prioridad == prioridad_key %}selected{% endif %}>{{ prioridad_display }}</option>
-            {% endfor %}
+        <!-- Formulario de filtros (barra de navegación horizontal) -->
+        <form action="{% url 'incidents:incident_table' slug=slug %}" method="get">
+            <div class="filters-bar">
+                <input name="q" type="text" class="form-control" placeholder="Buscar por título..."
+                    value="{{ request.GET.q|default:'' }}">
 
-    </form>
-    {% if is_admin %}
-    <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">
-        <input type="hidden" name="q" value="{{ request.GET.q }}">
-        <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
-        <button type="submit">Buscar</button>
-        <button type="submit">CSV</button>
-    </form>
-    {% endif %}
-    <table border="1">
-        <thead>
-            <tr>
-                <th style="text-align: center;">ID</th>
-                <th style="text-align: center;">Incidente</th>
-                <th style="text-align: center;">Usuario</th>
-                <th style="text-align: center;">Prioridad</th>
-                <th style="text-align: center;">Categoría</th>
-                <th style="text-align: center;">
-                    Inicio
-                    <a href="?ordering=start_date">↑</a>
-                    <a href="?ordering=-start_date">↓</a>
-                </th>
-                <th style="text-align: center;">
-                Vencimiento
-                <a href="?ordering=due_date">↑</a>
-                <a href="?ordering=-due_date">↓</a>
-                </th>
-                <th style="text-align: center;">
-                    Publicacion
-                <a href="?ordering=pub_date">↑</a>
-                <a href="?ordering=-pub_date">↓</a>
-                </th>
-                <th style="text-align: center;">Asignado a</th>
-                <th style="text-align: center;">Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for incident in incidents %}
-            <tr>
-                <td style="text-align: center;">{{ incident.id }}</td> 
-                <td style="text-align: center;"><a href="{% url 'incidents:detail' slug=slug pk=incident.pk %}">{{ incident.incident_text }}</a></td>
-                <td style="text-align: center;">{{ incident.user_creator|default:"Anónimo" }}</td>
-                <td style="text-align: center;">{{ incident.get_prioridad_display|safe }}</td> <!-- Filtramos on safe para renderizar en HTML -->
-                <td style="text-align: center;">{{ incident.get_category_display|default:"Sin asignar" }}</td>
-                <td style="text-align: center;">{{ incident.start_date|date:"d/m" }}</td>
-                <td style="text-align: center;">{{ incident.due_date|date:"d/m" }}</td>
-                <td style="text-align: center;">{{ incident.pub_date|date:"d/m" }}</td>
-                <td style="text-align: center;">
-                    {% if incident.assigned_to %}
+                <select name="user_creator" class="form-control">
+                    <option value="">-- Filtrar por Usuario --</option>
+                    {% for user in user_creators %}
+                    <option value="{{ user.id }}" {% if request.GET.user_creator == user.id|stringformat:"s" %}selected{% endif %}>
+                        {{ user|default:"Anónimo" }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="estado" class="form-control">
+                    <option value="">-- Filtrar por Estado --</option>
+                    {% for estado_key, estado_display in estados %}
+                    <option value="{{ estado_key }}" {% if request.GET.estado == estado_key %}selected{% endif %}>
+                        {{ estado_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="category" class="form-control">
+                    <option value="">-- Filtrar por Categoría --</option>
+                    {% for category_key, category_display in categories %}
+                    <option value="{{ category_key }}" {% if request.GET.category == category_key %}selected{% endif %}>
+                        {{ category_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="prioridad" class="form-control">
+                    <option value="">-- Filtrar por Prioridad --</option>
+                    {% for prioridad_key, prioridad_display in prioridades %}
+                    <option value="{{ prioridad_key }}" {% if request.GET.prioridad == prioridad_key %}selected{% endif %}>
+                        {{ prioridad_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+         <!-- Exportar CSV solo si es admin -->
+         {% if is_admin %}
+         <form action="{% url 'incidents:export_incidents_csv' slug=slug %}" method="get" style="display: inline">
+             <input type="hidden" name="q" value="{{ request.GET.q }}">
+             <input type="hidden" name="user_creator" value="{{ request.GET.user_creator }}">
+             <button type="submit" class="btn btn-primary">Buscar</button>
+             <button type="submit" class="btn btn-secondary">CSV</button>
+         </form>
+         {% endif %}
+
+        <!-- Tabla de Incidentes -->
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Incidente</th>
+                    <th>Usuario</th>
+                    <th>Prioridad</th>
+                    <th>Categoría</th>
+                    <th>Inicio</th>
+                    <th>Vencimiento</th>
+                    <th>Publicación</th>
+                    <th>Asignado a</th>
+                    <th>Estado</th>
+                    {% if is_admin or user %}
+                    <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for incident in incidents %}
+                <tr>
+                    <td>{{ incident.id }}</td>
+                    <td><a href="{% url 'incidents:detail' slug=slug pk=incident.pk %}">{{ incident.incident_text }}</a></td>
+                    <td>{{ incident.user_creator|default:"Anónimo" }}</td>
+                    <td>{{ incident.get_prioridad_display|safe }}</td>
+                    <td>{{ incident.get_category_display|default:"Sin asignar" }}</td>
+                    <td>{{ incident.start_date|date:"d/m" }}</td>
+                    <td>{{ incident.due_date|date:"d/m" }}</td>
+                    <td>{{ incident.pub_date|date:"d/m" }}</td>
+                    <td>
+                        {% if incident.assigned_to %}
                         {{ incident.assigned_to.usuario.nombre }} {{ incident.assigned_to.usuario.apellido }}
-                    {% else %}
+                        {% else %}
                         No asignado
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if incident.assigned_to and incident.assigned_to.usuario == request.user %}
+                        <form class="update-estado-form">
+                            <input type="hidden" name="incident_id" value="{{ incident.id }}">
+                            <select name="estado" class="update-estado">
+                                {% for estado_key, estado_display in incident.ESTADO_CHOICES %}
+                                <option value="{{ estado_key }}" {% if estado_key == incident.estado %}selected{% endif %}>
+                                    {{ estado_display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        {% else %}
+                        {{ incident.get_estado_display|safe }}
+                        {% endif %}
+                    </td>
+
+                    {% if is_admin or user == incident.user_creator %}
+                    <td>
+                        <a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Quieres eliminar este incidente?');">Eliminar</button>
+                        </form>
+                    </td>
                     {% endif %}
-                </td>                
-                <td style="text-align: center;">
-                    {% if incident.assigned_to and incident.assigned_to.usuario == request.user %}
-                    <!-- Mostrar dropdown para editar estado si el usuario tiene permiso -->
-                    <form class="update-estado-form">
-                        <input type="hidden" name="incident_id" value="{{ incident.id }}">
-                        <select name="estado" class="update-estado">
-                            {% for estado_key, estado_display in incident.ESTADO_CHOICES %}
-                            <option value="{{ estado_key }}" {% if estado_key == incident.estado %}selected{% endif %}>
-                                {{ estado_display }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                    {% else %}
-                    <!-- Mostrar solo el estado actual si no tiene permiso -->
-                    {{ incident.get_estado_display|safe }}
-                    {% endif %}
-                </td>
-                {% if is_admin or user == incident.user_creator %}
-                <td style="text-align: center;"><a href="{% url 'incidents:edit_incident' slug=slug pk=incident.pk %}">Editar</a></td>
-                <td style="text-align: center;"><form action="{% url 'incidents:delete-incident' slug=slug pk=incident.pk %}?page={{ incidents.number }}" method="post" style="display: inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" onclick="return confirm('Quieres eliminar este incidente?');">
-                                                        Eliminar
-                                                    </button>
-                                                </form>
-                </td>
-                {% endif %}
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8">
-                    {% if request.GET.q %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">
+                        {% if request.GET.q %}
                         No se encontraron incidentes que coincidan con "{{ request.GET.q }}".
-                    {% else %}
+                        {% else %}
                         No se encontraron incidentes.
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <div class="paginacion">
-        {% if incidents.has_previous %}
-            <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo; primera</a>
-            <a href="?page={{ incidents.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"> anterior</a>
-        {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        <span>Pagina {{ incidents.number }} de {{ incidents.paginator.num_pages }}</span>
+        <!-- Paginación -->
+        <div class="pagination">
+            {% if incidents.has_previous %}
+            <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">« Primera</a>
+            <a href="?page={{ incidents.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+            {% endif %}
 
-        {% if incidents.has_next %}
-            <a href="?page={{ incidents.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"> siguiente</a>
-            <a href="?page={{ incidents.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"> ultima &raquo</a>
-        {% endif %}
+            <span>Página {{ incidents.number }} de {{ incidents.paginator.num_pages }}</span>
+
+            {% if incidents.has_next %}
+            <a href="?page={{ incidents.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+            <a href="?page={{ incidents.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Última »</a>
+            {% endif %}
+        </div>
     </div>
-    <script> // Enviar cambios al servidor mediante una petición POST (usado para cambiar el estado del incidente)
+
+    <!-- Script para actualizar el estado -->
+    <script>
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll(".update-estado").forEach(select => {
                 select.addEventListener("change", function () {
                     const form = this.closest(".update-estado-form");
                     const formData = new FormData(form);
-    
+
                     fetch("", {
                         method: "POST",
                         body: formData,
@@ -177,14 +218,17 @@
                             location.reload(); // Refrescar la página para reflejar el cambio
                         }
                     })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        alert("Hubo un problema al actualizar el estado.");
-                    });
+                    .catch(error => console.error(error));
                 });
             });
         });
     </script>
-    
 </body>
+
+<h1 class="mt-4"> </h1>
+<h1 class="mt-4"> </h1>
+<h1 class="mt-4"> </h1>
+
+<global-footer></global-footer>
+
 </html>
